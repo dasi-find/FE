@@ -1,0 +1,19 @@
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+
+import { HomePage } from '../../pages/HomePage'
+import { LandingPage } from '../../pages/LandingPage'
+import { LoginPage } from '../../pages/LoginPage'
+import { NotFoundPage } from '../../pages/NotFoundPage'
+import { SignupPage } from '../../pages/SignupPage'
+
+const router = createBrowserRouter([
+  { path: '/', element: <LandingPage /> },
+  { path: '/login', element: <LoginPage /> },
+  { path: '/signup', element: <SignupPage /> },
+  { path: '/home', element: <HomePage /> },
+  { path: '*', element: <NotFoundPage /> },
+])
+
+export function AppRouter() {
+  return <RouterProvider router={router} />
+}

@@ -1,0 +1,114 @@
+:root {
+  font-family:
+    Pretendard,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  color: #17221b;
+  background: #f3f7f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.hero-card,
+.placeholder-card {
+  width: min(100%, 620px);
+  padding: clamp(32px, 7vw, 64px);
+  border: 1px solid #dce8df;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgb(41 74 53 / 10%);
+}
+
+.eyebrow {
+  color: #287a46;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  margin: 16px 0;
+  font-size: clamp(2.25rem, 8vw, 4.5rem);
+  line-height: 1;
+}
+
+p {
+  margin: 0;
+  color: #526158;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+small {
+  display: block;
+  margin-top: 28px;
+  color: #728078;
+  line-height: 1.6;
+}
+
+.brand-link {
+  color: #287a46;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primary-button {
+  color: #ffffff;
+  background: #287a46;
+}
+
+.secondary-button {
+  color: #245f39;
+  background: #e8f4ec;
+}
+
+.placeholder-card .primary-button {
+  margin-top: 28px;
+}
