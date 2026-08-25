@@ -12,7 +12,12 @@ describe('LandingPage', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { name: '다시찾음' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /찾는 건 AI가.*확인은 당신이/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '시작하기' })).toHaveAttribute('href', '/login')
+    expect(screen.getByRole('link', { name: '이메일로 회원가입' })).toHaveAttribute(
+      'href',
+      '/signup',
+    )
     expect(screen.getByText(/소유권을 확정하지 않습니다/)).toBeInTheDocument()
   })
 })
