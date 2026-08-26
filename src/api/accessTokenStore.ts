@@ -19,7 +19,9 @@ export function clearAccessToken() {
 
 export function subscribeAccessToken(listener: TokenListener) {
   listeners.add(listener)
-  return () => listeners.delete(listener)
+  return () => {
+    listeners.delete(listener)
+  }
 }
 
 function notify() {
