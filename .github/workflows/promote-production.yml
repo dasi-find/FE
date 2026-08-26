@@ -1,0 +1,35 @@
+name: Promote develop to main
+
+on:
+  workflow_run:
+    workflows:
+      - FE CI
+    types:
+      - completed
+
+concurrency:
+  group: promote-develop-to-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'develop' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fast-forward main to the verified develop commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          gh api \
+            --method PATCH \
+            "repos/${GITHUB_REPOSITORY}/git/refs/heads/main" \
+            -f sha="${VERIFIED_SHA}" \
+            -F force=false

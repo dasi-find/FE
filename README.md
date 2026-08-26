@@ -78,7 +78,11 @@ src/
 모든 작업은 Issue 생성 후 `develop`에서 작업 브랜치를 생성해 진행합니다.
 
 ```text
-feat/{Issue 번호}-{작업 내용} → develop → main
+feat/{Issue 번호}-{작업 내용} → develop → main → Vercel Production
 ```
+
+작업 브랜치가 `develop`에 병합되고 필수 FE CI가 성공하면 검증된 커밋이
+`main`에 자동으로 반영됩니다. Vercel은 `main` 변경을 `dasifind.kr` 운영 환경에
+자동 배포합니다. CI가 실패하거나 두 브랜치가 분기되면 운영 반영은 중단됩니다.
 
 자세한 규칙은 Organization의 `.github/CONVENTION.md`를 확인해 주세요.
