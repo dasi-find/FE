@@ -670,3 +670,497 @@ small {
     font-size: 2.15rem;
   }
 }
+
+.home-shell {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 36px;
+  color: #111111;
+  background: #ededf0;
+}
+
+.home-screen {
+  display: flex;
+  width: min(100%, 430px);
+  min-height: min(880px, calc(100svh - 72px));
+  max-height: min(920px, calc(100svh - 72px));
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #dddddf;
+  border-radius: 38px;
+  background: #ffffff;
+  box-shadow: 0 26px 80px rgb(0 0 0 / 12%);
+}
+
+.home-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 25px 18px;
+}
+
+.home-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #111111;
+  font-size: 0.88rem;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.home-logo {
+  width: 27px;
+  height: 27px;
+  border-width: 2px;
+}
+
+.home-logo::after {
+  right: -7px;
+  bottom: -4px;
+  width: 10px;
+  height: 4px;
+}
+
+.home-logo i,
+.home-logo b {
+  top: 6px;
+  width: 6px;
+  height: 10px;
+}
+
+.home-logo i {
+  left: 4px;
+}
+
+.home-logo b {
+  right: 4px;
+}
+
+.home-logo span {
+  top: 10px;
+  left: 11px;
+  width: 4px;
+}
+
+.home-notification {
+  position: relative;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid #e2e2e4;
+  border-radius: 50%;
+  color: #111111;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+
+.home-notification > span {
+  position: absolute;
+  top: -5px;
+  right: -6px;
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  padding: 0 5px;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #111111;
+  font-size: 0.58rem;
+  font-weight: 850;
+}
+
+.home-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 25px 32px;
+  scrollbar-width: none;
+}
+
+.home-content::-webkit-scrollbar {
+  display: none;
+}
+
+.home-intro p {
+  margin-bottom: 5px;
+  color: #747479;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.home-intro h1 {
+  margin: 0;
+  font-size: 2.15rem;
+  line-height: 1.08;
+  letter-spacing: -0.065em;
+}
+
+.home-start-button {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 25px;
+  border-radius: 17px;
+  color: #ffffff;
+  background: #111111;
+  font-size: 0.83rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.home-start-button > span {
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.home-section {
+  margin-top: 35px;
+}
+
+.home-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.home-section-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.04em;
+}
+
+.home-section-heading > a {
+  color: #6f6f74;
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.home-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.search-summary-card,
+.candidate-summary-card,
+.home-empty-card,
+.home-state-card {
+  border: 1px solid #e1e1e3;
+  border-radius: 18px;
+  background: #fafafa;
+}
+
+.search-summary-card {
+  display: block;
+  padding: 17px;
+  color: #111111;
+  text-decoration: none;
+}
+
+.search-summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-summary-top > span:last-child {
+  color: #8a8a8e;
+  font-size: 1.4rem;
+}
+
+.home-badge {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 21px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid #d6d6d8;
+  border-radius: 11px;
+  color: #4d4d52;
+  background: #ffffff;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.home-badge.is-dark {
+  border-color: #111111;
+  color: #ffffff;
+  background: #111111;
+}
+
+.search-summary-card h3 {
+  margin: 13px 0 6px;
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+}
+
+.search-summary-card > p {
+  overflow: hidden;
+  color: #7a7a7f;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-summary-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #e7e7e9;
+}
+
+.search-summary-score span {
+  color: #77777c;
+  font-size: 0.65rem;
+}
+
+.search-summary-score strong {
+  font-size: 0.78rem;
+}
+
+.candidate-summary-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  color: #111111;
+  text-decoration: none;
+}
+
+.candidate-thumbnail {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid #dedee0;
+  border-radius: 13px;
+  color: #55555a;
+  background: #f0f0f1;
+  font-size: 1.1rem;
+}
+
+.candidate-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.candidate-copy strong {
+  overflow: hidden;
+  font-size: 0.83rem;
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-copy small {
+  overflow: hidden;
+  margin: 0;
+  color: #77777c;
+  font-size: 0.64rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-score {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #111111;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.home-empty-card,
+.home-state-card {
+  padding: 24px 18px;
+  text-align: center;
+}
+
+.home-empty-card > span,
+.home-state-symbol {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 12px;
+  place-items: center;
+  border: 1px solid #d8d8db;
+  border-radius: 50%;
+  color: #55555a;
+  background: #ffffff;
+  font-size: 1.1rem;
+}
+
+.home-empty-card h3,
+.home-state-card h2 {
+  margin: 0 0 7px;
+  font-size: 0.86rem;
+  letter-spacing: -0.03em;
+}
+
+.home-empty-card p,
+.home-state-card p {
+  color: #76767b;
+  font-size: 0.69rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.home-empty-card > a,
+.home-state-card button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  padding: 0 14px;
+  border: 1px solid #111111;
+  border-radius: 11px;
+  color: #ffffff;
+  background: #111111;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.home-state-card button:disabled {
+  opacity: 0.48;
+}
+
+.home-loading {
+  display: grid;
+  gap: 12px;
+  margin-top: 35px;
+}
+
+.home-loading span {
+  display: block;
+  height: 108px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #f0f0f1 25%, #fafafa 50%, #f0f0f1 75%);
+  background-size: 200% 100%;
+  animation: home-loading 1.4s infinite linear;
+}
+
+.home-loading span:first-child {
+  width: 40%;
+  height: 18px;
+  border-radius: 8px;
+}
+
+@keyframes home-loading {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.home-bottom-nav {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 10px 14px 13px;
+  border-top: 1px solid #e5e5e7;
+  background: rgb(255 255 255 / 96%);
+}
+
+.home-nav-item {
+  display: grid;
+  min-height: 48px;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+  border-radius: 12px;
+  color: #96969a;
+  font-size: 0.59rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.home-nav-item > span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.home-nav-item.is-active {
+  color: #111111;
+  background: #f4f4f5;
+}
+
+.home-nav-icon {
+  position: relative;
+}
+
+.home-nav-icon b {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  min-width: 16px;
+  padding: 2px 4px;
+  border: 2px solid #ffffff;
+  border-radius: 9px;
+  color: #ffffff;
+  background: #111111;
+  font-size: 0.48rem;
+}
+
+.home-brand:focus-visible,
+.home-notification:focus-visible,
+.home-start-button:focus-visible,
+.home-section-heading a:focus-visible,
+.search-summary-card:focus-visible,
+.candidate-summary-card:focus-visible,
+.home-empty-card a:focus-visible,
+.home-state-card button:focus-visible,
+.home-nav-item:focus-visible {
+  outline: 3px solid #999999;
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .home-shell {
+    display: block;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .home-screen {
+    width: 100%;
+    min-height: 100svh;
+    max-height: 100svh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .home-header {
+    padding-top: max(25px, env(safe-area-inset-top));
+  }
+
+  .home-bottom-nav {
+    padding-bottom: max(13px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-loading span {
+    animation: none;
+  }
+}
