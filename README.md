@@ -42,6 +42,33 @@ npm run dev
 
 실제 환경변수는 `.env.local`에 작성하고 Git에 커밋하지 않습니다.
 
+## Vercel 배포
+
+운영 배포는 Vercel에서 아래와 같이 설정합니다.
+
+| 항목              | 값                            |
+| ----------------- | ----------------------------- |
+| Production Branch | `main`                        |
+| Framework Preset  | `Vite`                        |
+| Root Directory    | `./`                          |
+| Install Command   | `npm install`                 |
+| Build Command     | `npm run build`               |
+| Output Directory  | `dist`                        |
+| 운영 도메인       | `https://dasifind.kr`         |
+| Backend API URL   | `https://api.dasifind.kr/api` |
+
+Vercel의 Production 환경변수에 다음 값을 등록합니다.
+
+```text
+VITE_API_BASE_URL=https://api.dasifind.kr/api
+```
+
+로컬 `.env` 파일은 Vercel에 자동 반영되지 않습니다. Vercel 환경변수를 변경하면
+새 배포를 실행해야 합니다.
+
+React Router 경로를 직접 열거나 새로고침할 때 404가 발생하지 않도록
+`vercel.json`이 모든 SPA 경로를 `index.html`로 연결합니다.
+
 ## 명령어
 
 ```bash
