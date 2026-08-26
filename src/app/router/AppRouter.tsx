@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
+import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute'
 import { HomePage } from '../../pages/HomePage'
 import { LandingPage } from '../../pages/LandingPage'
 import { LoginPage } from '../../pages/LoginPage'
@@ -10,7 +11,14 @@ const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
-  { path: '/home', element: <HomePage /> },
+  {
+    path: '/home',
+    element: (
+      <ProtectedRoute>
+        <HomePage />
+      </ProtectedRoute>
+    ),
+  },
   { path: '*', element: <NotFoundPage /> },
 ])
 
