@@ -22,7 +22,7 @@ type CreateHttpClientOptions = {
   removeAccessToken?: () => void
 }
 
-const defaultBaseURL = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const defaultBaseURL = import.meta.env.DEV ? (import.meta.env.VITE_API_BASE_URL ?? '/api') : '/api'
 
 export function createHttpClient({
   baseURL = defaultBaseURL,

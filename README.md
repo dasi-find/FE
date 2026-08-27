@@ -58,12 +58,14 @@ npm run dev
 | 운영 도메인       | `https://dasifind.vercel.app` |
 | Backend API URL   | `/api`                        |
 
-Vercel의 Production 환경변수에 다음 값을 등록합니다.
+Vercel의 Production 환경변수에는 카카오맵 키만 등록합니다.
 
 ```text
-VITE_API_BASE_URL=/api
 VITE_KAKAO_MAP_APP_KEY=카카오_JavaScript_키
 ```
+
+Production과 Preview 빌드의 API Base URL은 `/api`로 고정됩니다.
+`VITE_API_BASE_URL`은 로컬 개발 서버를 연결할 때만 사용합니다.
 
 로컬 `.env` 파일은 Vercel에 자동 반영되지 않습니다. Vercel 환경변수를 변경하면
 새 배포를 실행해야 합니다.
