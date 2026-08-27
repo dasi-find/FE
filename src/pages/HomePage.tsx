@@ -49,35 +49,41 @@ export function HomePage() {
             />
           )}
           {homeQuery.data && (
-            <>
-              <section className="home-section" aria-labelledby="active-search-title">
-                <div className="home-section-heading">
-                  <h2 id="active-search-title">진행 중인 수색</h2>
-                  {homeQuery.data.activeSearchCards.length > 0 && (
-                    <Link to="/search-cards">전체보기</Link>
-                  )}
-                </div>
+            <section className="home-section" aria-labelledby="active-search-title">
+              <div className="home-section-heading">
+                <h2 id="active-search-title">진행 중인 수색</h2>
+              </div>
 
-                {homeQuery.data.activeSearchCards.length === 0 ? (
-                  <HomeEmpty
-                    title="진행 중인 수색이 없어요."
-                    description="잃어버린 물건을 등록하면 새로운 경찰 습득물과 계속 비교해 드려요."
-                    actionLabel="첫 수색 시작하기"
-                    actionTo="/search-cards/new"
-                  />
-                ) : (
-                  <div className="home-card-list">
-                    {homeQuery.data.activeSearchCards.map((searchCard) => (
+              {homeQuery.data.activeSearchCards.length === 0 ? (
+                <HomeEmpty
+                  title="진행 중인 수색이 없어요."
+                  description="잃어버린 물건을 등록하면 새로운 경찰 습득물과 계속 비교해 드려요."
+                  actionLabel="첫 수색 시작하기"
+                  actionTo="/search-cards/new"
+                />
+              ) : (
+                <div className="home-card-list">
+                  {homeQuery.data.activeSearchCards.map((searchCard) => {
+                    const newCandidateCount = homeQuery.data.newCandidates.filter(
+                      (candidate) => candidate.searchCardId === searchCard.id && candidate.isNew,
+                    ).length
+
+                    return (
                       <Link
                         className="search-summary-card"
                         key={searchCard.id}
-                        to={`/search-cards/${searchCard.id}`}
+                        to={`/search-cards/${searchCard.id}/candidates`}
                       >
                         <div className="search-summary-top">
                           <span className="home-badge">
                             수색 중 · {formatDaysRemaining(searchCard.daysRemaining)}
                           </span>
-                          <span aria-hidden="true">›</span>
+                          <span className="search-summary-action">
+                            {newCandidateCount > 0 && (
+                              <b aria-label={`새 후보 ${newCandidateCount}개`}>!</b>
+                            )}
+                            <i aria-hidden="true">›</i>
+                          </span>
                         </div>
                         <h3>{searchCard.itemName}</h3>
                         <p>
@@ -92,52 +98,11 @@ export function HomePage() {
                           </strong>
                         </div>
                       </Link>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              <section className="home-section" aria-labelledby="new-candidate-title">
-                <div className="home-section-heading">
-                  <h2 id="new-candidate-title">새로운 후보</h2>
-                  {homeQuery.data.newCandidates.length > 0 && (
-                    <Link to="/candidates">{homeQuery.data.newCandidates.length}개 보기</Link>
-                  )}
+                    )
+                  })}
                 </div>
-
-                {homeQuery.data.newCandidates.length === 0 ? (
-                  <HomeEmpty
-                    title="새 후보를 계속 찾고 있어요."
-                    description="조건에 맞는 경찰 습득물이 들어오면 바로 알려드릴게요."
-                  />
-                ) : (
-                  <div className="home-card-list">
-                    {homeQuery.data.newCandidates.map((candidate) => (
-                      <Link
-                        className="candidate-summary-card"
-                        key={candidate.id}
-                        to={`/candidates/${candidate.id}`}
-                      >
-                        <span className="candidate-thumbnail" aria-hidden="true">
-                          ▰
-                        </span>
-                        <span className="candidate-copy">
-                          {candidate.isNew && <span className="home-badge is-dark">NEW</span>}
-                          <strong>{candidate.itemName}</strong>
-                          <small>{candidate.storagePlace}</small>
-                        </span>
-                        <span
-                          className="candidate-score"
-                          aria-label={`적합도 ${formatScore(candidate.totalScore)}점`}
-                        >
-                          {formatScore(candidate.totalScore)}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </>
+              )}
+            </section>
           )}
         </div>
 

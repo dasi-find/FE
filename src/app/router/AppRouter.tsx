@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute'
+import { CandidateDetailPage } from '../../pages/CandidateDetailPage'
+import { CandidateListPage } from '../../pages/CandidateListPage'
 import { HomePage } from '../../pages/HomePage'
 import { LandingPage } from '../../pages/LandingPage'
 import { LoginPage } from '../../pages/LoginPage'
@@ -25,6 +27,22 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <NewSearchCardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/search-cards/:searchCardId/candidates',
+    element: (
+      <ProtectedRoute>
+        <CandidateListPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/candidates/:candidateId',
+    element: (
+      <ProtectedRoute>
+        <CandidateDetailPage />
       </ProtectedRoute>
     ),
   },
