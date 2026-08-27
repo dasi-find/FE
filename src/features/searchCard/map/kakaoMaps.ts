@@ -11,6 +11,7 @@ type KakaoLatLng = object
 type KakaoMarkerImage = object
 
 export type KakaoMapInstance = {
+  relayout: () => void
   setCenter: (position: KakaoLatLng) => void
 }
 

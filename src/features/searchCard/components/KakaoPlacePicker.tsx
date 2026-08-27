@@ -28,18 +28,35 @@ export function KakaoPlacePicker({
 
   useEffect(() => {
     if (!appKey || latitude === null || longitude === null || !mapElement.current) return
+    let isActive = true
+    let layoutFrame: number | null = null
     let marker: { setMap: (map: KakaoMapInstance | null) => void } | null = null
-    void loadKakaoMaps(appKey).then((maps) => {
-      if (!mapElement.current) return
-      const position = new maps.LatLng(latitude, longitude)
-      const map = new maps.Map(mapElement.current, { center: position, level: 3 })
-      const image = new maps.MarkerImage('/dasi-find-map-marker.svg', new maps.Size(52, 64), {
-        offset: new maps.Point(26, 62),
+    void loadKakaoMaps(appKey)
+      .then((maps) => {
+        if (!isActive || !mapElement.current) return
+        const position = new maps.LatLng(latitude, longitude)
+        const map = new maps.Map(mapElement.current, { center: position, level: 3 })
+        const image = new maps.MarkerImage('/dasi-find-map-marker.svg', new maps.Size(52, 64), {
+          offset: new maps.Point(26, 62),
+        })
+        marker = new maps.Marker({ position, image })
+        marker.setMap(map)
+
+        layoutFrame = window.requestAnimationFrame(() => {
+          map.relayout()
+          map.setCenter(position)
+        })
       })
-      marker = new maps.Marker({ position, image })
-      marker.setMap(map)
-    })
-    return () => marker?.setMap(null)
+      .catch((error) => {
+        if (!isActive) return
+        setMessage(error instanceof Error ? error.message : '지도를 불러오지 못했어요.')
+      })
+
+    return () => {
+      isActive = false
+      if (layoutFrame !== null) window.cancelAnimationFrame(layoutFrame)
+      marker?.setMap(null)
+    }
   }, [appKey, latitude, longitude])
 
   const search = async () => {
@@ -77,7 +94,11 @@ export function KakaoPlacePicker({
         <span aria-hidden="true">⌕</span>
         {isSearching ? '카카오맵에서 검색 중...' : '카카오맵에서 장소 검색'}
       </button>
-      {message && <p className="search-map-message">{message}</p>}
+      {message && (
+        <p className="search-map-message" aria-live="polite">
+          {message}
+        </p>
+      )}
       {results.length > 0 && (
         <ul className="search-place-results" aria-label="카카오맵 장소 검색 결과">
           {results.map((place) => (
