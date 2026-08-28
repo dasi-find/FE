@@ -67,6 +67,11 @@ export async function fetchCurrentUser() {
   return data.result
 }
 
+export async function logout() {
+  const { data } = await httpClient.post<ApiResponse<null>>('/v1/auth/logout', {})
+  return data.result
+}
+
 export async function sendEmailVerification(email: string) {
   const { data } = await httpClient.post<ApiResponse<EmailVerificationSendResult>>(
     '/v1/auth/email-verifications',

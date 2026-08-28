@@ -1,14 +1,26 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSyncExternalStore } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
+import { clearAccessToken } from '../api/accessTokenStore'
+import { logout } from '../features/auth/api/authApi'
 import { getHomeSummary } from '../features/home/api/homeApi'
 import { HomeBottomNavigation } from '../features/home/components/HomeBottomNavigation'
 import { getCurrentUser, subscribeCurrentUser } from '../features/auth/model/authSessionStore'
 
 export function HomePage() {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const currentUser = useSyncExternalStore(subscribeCurrentUser, getCurrentUser, getCurrentUser)
   const homeQuery = useQuery({ queryKey: ['home-summary'], queryFn: getHomeSummary })
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      clearAccessToken()
+      queryClient.clear()
+      navigate('/login', { replace: true })
+    },
+  })
 
   return (
     <main className="home-shell">
@@ -22,13 +34,29 @@ export function HomePage() {
             </span>
             <strong>다시찾음</strong>
           </Link>
-          <Link className="home-notification" to="/notifications" aria-label="알림 목록">
-            ♢
-            {(homeQuery.data?.unreadNotificationCount ?? 0) > 0 && (
-              <span>{formatBadge(homeQuery.data?.unreadNotificationCount ?? 0)}</span>
-            )}
-          </Link>
+          <div className="home-header-actions">
+            <button
+              className="home-logout"
+              type="button"
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+            >
+              {logoutMutation.isPending ? '나가는 중' : '로그아웃'}
+            </button>
+            <Link className="home-notification" to="/notifications" aria-label="알림 목록">
+              ♢
+              {(homeQuery.data?.unreadNotificationCount ?? 0) > 0 && (
+                <span>{formatBadge(homeQuery.data?.unreadNotificationCount ?? 0)}</span>
+              )}
+            </Link>
+          </div>
         </header>
+
+        {logoutMutation.isError && (
+          <p className="home-logout-error" role="alert">
+            로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.
+          </p>
+        )}
 
         <div className="home-content">
           <div className="home-intro">
