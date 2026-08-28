@@ -66,6 +66,11 @@ export async function uploadSearchCardImage(file: File, imageType: SearchCardIma
   return data.result
 }
 
+export async function deleteSearchCardImage(imageId: number) {
+  const { data } = await httpClient.delete<ApiResponse<null>>(`/v1/search-card-images/${imageId}`)
+  return data.result
+}
+
 export async function requestSearchCardAnalysis(payload: SearchCardAnalysisRequest) {
   const { data } = await httpClient.post<ApiResponse<SearchCardAnalysis>>(
     '/v1/search-card-analyses',
