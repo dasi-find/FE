@@ -14,7 +14,7 @@ export function HomeBottomNavigation({ unreadNotificationCount }: HomeBottomNavi
         <span aria-hidden="true">＋</span>
         수색
       </Link>
-      <Link className="home-nav-item" to="/candidates">
+      <Link className="home-nav-item" to="/home#active-search-title">
         <span aria-hidden="true">≋</span>
         후보
       </Link>
