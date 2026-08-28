@@ -61,14 +61,11 @@ describe('HomePage', () => {
     )
     expect((await screen.findByText('남색 카드지갑')).closest('a')).toHaveAttribute(
       'href',
-      '/search-cards/12',
+      '/search-cards/12/candidates',
     )
     expect(screen.getByText('8월 17일 · 판교역 인근')).toBeInTheDocument()
-    expect(screen.getByText('검정색 반지갑').closest('a')).toHaveAttribute(
-      'href',
-      '/candidates/301',
-    )
-    expect(screen.getByLabelText('적합도 82점')).toBeInTheDocument()
+    expect(screen.getByLabelText('새 후보 1개')).toHaveTextContent('!')
+    expect(screen.queryByText('검정색 반지갑')).not.toBeInTheDocument()
   })
 
   it('수색과 후보가 없을 때 다음 행동을 안내한다', async () => {
@@ -84,7 +81,7 @@ describe('HomePage', () => {
       'href',
       '/search-cards/new',
     )
-    expect(screen.getByText('새 후보를 계속 찾고 있어요.')).toBeInTheDocument()
+    expect(screen.queryByText('새 후보를 계속 찾고 있어요.')).not.toBeInTheDocument()
   })
 
   it('조회 실패 후 다시 시도할 수 있다', async () => {
