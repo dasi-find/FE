@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import {
   createSearchCard,
+  deleteSearchCardImage,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
   type CreatedSearchCard,
@@ -72,16 +73,27 @@ export function NewSearchCardPage() {
     setErrors({})
     setSubmitError('')
     setIsSubmitting(true)
+    let pendingImageIds: number[] = []
     try {
-      const uploadedImages = await Promise.all(
+      const uploadResults = await Promise.allSettled(
         draft.images.map(({ file, imageType }) => uploadSearchCardImage(file, imageType)),
       )
-      const imageIds = uploadedImages.map(({ imageId }) => imageId)
-      const nextAnalysis = await requestSearchCardAnalysis(buildAnalysisPayload(draft, imageIds))
-      setUploadedImageIds(imageIds)
+      pendingImageIds = uploadResults.flatMap((uploadResult) =>
+        uploadResult.status === 'fulfilled' ? [uploadResult.value.imageId] : [],
+      )
+      const failedUpload = uploadResults.find(
+        (uploadResult): uploadResult is PromiseRejectedResult => uploadResult.status === 'rejected',
+      )
+      if (failedUpload) throw failedUpload.reason
+
+      const nextAnalysis = await requestSearchCardAnalysis(
+        buildAnalysisPayload(draft, pendingImageIds),
+      )
+      setUploadedImageIds(pendingImageIds)
       setAnalysis(nextAnalysis)
       setStep(4)
     } catch (error) {
+      await Promise.allSettled(pendingImageIds.map((imageId) => deleteSearchCardImage(imageId)))
       setSubmitError(getErrorMessage(error, 'AI 분석을 시작하지 못했어요.'))
     } finally {
       setIsSubmitting(false)

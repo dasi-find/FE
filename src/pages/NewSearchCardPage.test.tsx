@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   createSearchCard,
+  deleteSearchCardImage,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
 } from '../features/searchCard/api/searchCardApi'
@@ -12,17 +13,20 @@ import { NewSearchCardPage } from './NewSearchCardPage'
 
 vi.mock('../features/searchCard/api/searchCardApi', () => ({
   uploadSearchCardImage: vi.fn(),
+  deleteSearchCardImage: vi.fn(),
   requestSearchCardAnalysis: vi.fn(),
   createSearchCard: vi.fn(),
 }))
 
 const mockedUpload = vi.mocked(uploadSearchCardImage)
+const mockedDeleteImage = vi.mocked(deleteSearchCardImage)
 const mockedAnalysis = vi.mocked(requestSearchCardAnalysis)
 const mockedCreate = vi.mocked(createSearchCard)
 
 describe('NewSearchCardPage', () => {
   beforeEach(() => {
     mockedUpload.mockReset()
+    mockedDeleteImage.mockReset()
     mockedAnalysis.mockReset()
     mockedCreate.mockReset()
   })
@@ -89,6 +93,67 @@ describe('NewSearchCardPage', () => {
     await user.click(screen.getByRole('button', { name: '이 내용으로 수색 시작' }))
     expect(await screen.findByRole('heading', { name: '수색을 시작했어요.' })).toBeInTheDocument()
     expect(screen.getByText('현재 확인할 후보 3개')).toBeInTheDocument()
+  })
+
+  it('이미지 업로드 후 분석이 실패하면 업로드된 이미지를 정리한다', async () => {
+    const user = userEvent.setup()
+    mockedUpload.mockResolvedValue({
+      imageId: 501,
+      imageUrl: '/wallet.jpg',
+      imageType: 'ACTUAL',
+    })
+    mockedAnalysis.mockRejectedValue(new Error('분석 서버에 연결하지 못했어요.'))
+    mockedDeleteImage.mockResolvedValue(null)
+    renderPage()
+
+    await user.click(screen.getByRole('button', { name: '지갑' }))
+    await user.type(screen.getByLabelText('물품명'), '남색 카드지갑')
+    await user.type(screen.getByLabelText(/대표 색상/), '남색')
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.upload(
+      screen.getByLabelText(/사진 추가/),
+      new File(['wallet'], 'wallet.png', { type: 'image/png' }),
+    )
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.type(screen.getByLabelText('날짜'), '2026-08-17')
+    await user.type(screen.getByLabelText('장소명'), '판교역')
+    await user.type(screen.getByLabelText('주소'), '경기도 성남시 분당구 판교역로 160')
+    await user.click(screen.getByRole('button', { name: 'AI로 분석하기' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('분석 서버에 연결하지 못했어요.')
+    expect(mockedDeleteImage).toHaveBeenCalledWith(501)
+  })
+
+  it('여러 이미지 중 일부 업로드가 실패하면 성공한 이미지만 정리한다', async () => {
+    const user = userEvent.setup()
+    mockedUpload
+      .mockResolvedValueOnce({
+        imageId: 501,
+        imageUrl: '/wallet-front.jpg',
+        imageType: 'ACTUAL',
+      })
+      .mockRejectedValueOnce(new Error('두 번째 사진을 올리지 못했어요.'))
+    mockedDeleteImage.mockResolvedValue(null)
+    renderPage()
+
+    await user.click(screen.getByRole('button', { name: '지갑' }))
+    await user.type(screen.getByLabelText('물품명'), '남색 카드지갑')
+    await user.type(screen.getByLabelText(/대표 색상/), '남색')
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.upload(screen.getByLabelText(/사진 추가/), [
+      new File(['front'], 'wallet-front.png', { type: 'image/png' }),
+      new File(['back'], 'wallet-back.png', { type: 'image/png' }),
+    ])
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.type(screen.getByLabelText('날짜'), '2026-08-17')
+    await user.type(screen.getByLabelText('장소명'), '판교역')
+    await user.type(screen.getByLabelText('주소'), '경기도 성남시 분당구 판교역로 160')
+    await user.click(screen.getByRole('button', { name: 'AI로 분석하기' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('두 번째 사진을 올리지 못했어요.')
+    expect(mockedDeleteImage).toHaveBeenCalledTimes(1)
+    expect(mockedDeleteImage).toHaveBeenCalledWith(501)
+    expect(mockedAnalysis).not.toHaveBeenCalled()
   })
 })
 

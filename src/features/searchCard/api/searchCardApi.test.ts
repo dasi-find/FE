@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { httpClient } from '../../../api/httpClient'
 import {
   createSearchCard,
+  deleteSearchCardImage,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
   type SearchCardAnalysisRequest,
 } from './searchCardApi'
 
 vi.mock('../../../api/httpClient', () => ({
-  httpClient: { post: vi.fn() },
+  httpClient: { delete: vi.fn(), post: vi.fn() },
 }))
 
+const mockedDelete = vi.mocked(httpClient.delete)
 const mockedPost = vi.mocked(httpClient.post)
 
 const analysisPayload: SearchCardAnalysisRequest = {
@@ -34,7 +36,10 @@ const analysisPayload: SearchCardAnalysisRequest = {
 }
 
 describe('searchCardApi', () => {
-  beforeEach(() => mockedPost.mockReset())
+  beforeEach(() => {
+    mockedDelete.mockReset()
+    mockedPost.mockReset()
+  })
 
   it('이미지를 multipart 형식으로 업로드한다', async () => {
     const result = { imageId: 501, imageUrl: '/image.jpg', imageType: 'ACTUAL' as const }
@@ -50,6 +55,16 @@ describe('searchCardApi', () => {
     })
     expect(formData.get('file')).toBe(file)
     expect(formData.get('imageType')).toBe('ACTUAL')
+  })
+
+  it('업로드된 이미지를 명세 경로로 삭제한다', async () => {
+    mockedDelete.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: null },
+    })
+
+    await expect(deleteSearchCardImage(501)).resolves.toBeNull()
+
+    expect(mockedDelete).toHaveBeenCalledWith('/v1/search-card-images/501')
   })
 
   it('AI 분석과 수색카드 생성을 명세 경로로 요청한다', async () => {
