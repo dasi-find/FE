@@ -1,17 +1,20 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { clearAccessToken } from '../api/accessTokenStore'
+import { clearAccessToken, getAccessToken } from '../api/accessTokenStore'
+import { logout } from '../features/auth/api/authApi'
 import { saveAuthSession } from '../features/auth/model/authSessionStore'
 import { getHomeSummary, type HomeSummary } from '../features/home/api/homeApi'
 import { HomePage } from './HomePage'
 
 vi.mock('../features/home/api/homeApi', () => ({ getHomeSummary: vi.fn() }))
+vi.mock('../features/auth/api/authApi', () => ({ logout: vi.fn() }))
 
 const mockedGetHomeSummary = vi.mocked(getHomeSummary)
+const mockedLogout = vi.mocked(logout)
 
 const populatedHome: HomeSummary = {
   activeSearchCards: [
@@ -42,6 +45,7 @@ describe('HomePage', () => {
   beforeEach(() => {
     clearAccessToken()
     mockedGetHomeSummary.mockReset()
+    mockedLogout.mockReset()
     saveAuthSession({
       user: { id: 7, email: 'hello@example.com', name: '민준' },
       accessToken: 'access-token',
@@ -97,6 +101,32 @@ describe('HomePage', () => {
     expect(await screen.findByText('남색 카드지갑')).toBeInTheDocument()
     expect(mockedGetHomeSummary).toHaveBeenCalledTimes(2)
   })
+
+  it('로그아웃 성공 시 세션을 제거하고 로그인 화면으로 이동한다', async () => {
+    const user = userEvent.setup()
+    mockedGetHomeSummary.mockResolvedValue(populatedHome)
+    mockedLogout.mockResolvedValue(null)
+    renderHome()
+
+    await user.click(screen.getByRole('button', { name: '로그아웃' }))
+
+    expect(await screen.findByText('로그인 화면')).toBeInTheDocument()
+    expect(mockedLogout).toHaveBeenCalledOnce()
+    expect(getAccessToken()).toBeNull()
+  })
+
+  it('로그아웃 실패 시 세션을 유지하고 다시 시도할 수 있다', async () => {
+    const user = userEvent.setup()
+    mockedGetHomeSummary.mockResolvedValue(populatedHome)
+    mockedLogout.mockRejectedValue(new Error('서버 오류'))
+    renderHome()
+
+    await user.click(screen.getByRole('button', { name: '로그아웃' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('로그아웃하지 못했어요.')
+    expect(getAccessToken()).toBe('access-token')
+    expect(screen.getByRole('button', { name: '로그아웃' })).toBeEnabled()
+  })
 })
 
 function renderHome() {
@@ -107,7 +137,10 @@ function renderHome() {
   render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <HomePage />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<p>로그인 화면</p>} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
   )

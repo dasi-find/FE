@@ -795,6 +795,41 @@ small {
   text-decoration: none;
 }
 
+.home-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.home-logout {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e2e2e4;
+  border-radius: 999px;
+  color: #333333;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.home-logout:disabled {
+  color: #888888;
+  cursor: wait;
+}
+
+.home-logout-error {
+  margin: -8px 25px 4px;
+  padding: 9px 12px;
+  border: 1px solid #d8d8da;
+  border-radius: 10px;
+  color: #333333;
+  background: #f7f7f8;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
 .home-notification > span {
   position: absolute;
   top: -5px;
@@ -1181,6 +1216,7 @@ small {
 }
 
 .home-brand:focus-visible,
+.home-logout:focus-visible,
 .home-notification:focus-visible,
 .home-start-button:focus-visible,
 .home-section-heading a:focus-visible,
