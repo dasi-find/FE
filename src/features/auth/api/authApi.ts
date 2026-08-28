@@ -14,6 +14,11 @@ export type AuthResult = {
   refreshToken?: string
 }
 
+export type RefreshAccessTokenResult = {
+  accessToken: string
+  accessTokenExpiresInSeconds: number
+}
+
 export type LoginRequest = {
   email: string
   password: string
@@ -46,6 +51,19 @@ export async function login(request: LoginRequest) {
 
 export async function signup(request: SignupRequest) {
   const { data } = await httpClient.post<ApiResponse<AuthResult>>('/v1/auth/signup', request)
+  return data.result
+}
+
+export async function refreshAccessToken() {
+  const { data } = await httpClient.post<ApiResponse<RefreshAccessTokenResult>>(
+    '/v1/auth/token/refresh',
+    {},
+  )
+  return data.result
+}
+
+export async function fetchCurrentUser() {
+  const { data } = await httpClient.get<ApiResponse<AuthUser>>('/v1/users/me')
   return data.result
 }
 
