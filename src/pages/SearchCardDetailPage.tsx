@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import {
+  closeSearchCard,
   getSearchCard,
   type SearchCardDetail,
   type SearchCardStatus,
@@ -86,6 +87,22 @@ export function SearchCardDetailPage() {
 }
 
 function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail }) {
+  const queryClient = useQueryClient()
+  const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false)
+  const closeMutation = useMutation({
+    mutationFn: () => closeSearchCard(searchCard.id),
+    onSuccess: async (closedSearchCard) => {
+      queryClient.setQueryData<SearchCardDetail>(['search-card', searchCard.id], (current) =>
+        current ? { ...current, status: closedSearchCard.status } : current,
+      )
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['search-cards'] }),
+        queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
+      ])
+      setIsCloseDialogOpen(false)
+    },
+  })
+
   return (
     <>
       <article className="search-card-detail-hero">
@@ -177,6 +194,58 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
           <p className="search-card-detail-description">저장된 AI 분석 결과가 없어요.</p>
         )}
       </DetailSection>
+
+      {searchCard.status === 'ACTIVE' && (
+        <section className="search-card-detail-actions">
+          <h2>수색 관리</h2>
+          <p>물건을 찾았거나 더 이상 후보 알림이 필요하지 않을 때 수색을 종료해 주세요.</p>
+          <button type="button" onClick={() => setIsCloseDialogOpen(true)}>
+            수색 종료
+          </button>
+        </section>
+      )}
+
+      {isCloseDialogOpen && (
+        <div className="search-card-close-backdrop">
+          <div
+            className="search-card-close-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="search-card-close-title"
+          >
+            <span aria-hidden="true">!</span>
+            <h2 id="search-card-close-title">수색을 종료할까요?</h2>
+            <p>
+              종료하면 새로운 후보 알림을 받을 수 없어요. 수색카드와 기존 후보는 계속 확인할 수
+              있어요.
+            </p>
+            {closeMutation.isError && (
+              <p className="search-card-close-error" role="alert">
+                수색을 종료하지 못했어요. 다시 시도해 주세요.
+              </p>
+            )}
+            <div>
+              <button
+                type="button"
+                disabled={closeMutation.isPending}
+                onClick={() => closeMutation.mutate()}
+              >
+                {closeMutation.isPending ? '종료 중...' : '종료하기'}
+              </button>
+              <button
+                type="button"
+                disabled={closeMutation.isPending}
+                onClick={() => {
+                  closeMutation.reset()
+                  setIsCloseDialogOpen(false)
+                }}
+              >
+                계속 수색하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

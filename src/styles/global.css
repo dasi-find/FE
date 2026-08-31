@@ -3335,3 +3335,118 @@ small {
     padding-left: 18px;
   }
 }
+
+.search-card-detail-actions {
+  padding: 24px 0 4px;
+}
+
+.search-card-detail-actions h2 {
+  margin: 0 0 8px;
+  font-size: 0.84rem;
+}
+
+.search-card-detail-actions p {
+  margin: 0 0 14px;
+  color: #77777c;
+  font-size: 0.66rem;
+  line-height: 1.55;
+}
+
+.search-card-detail-actions button {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #111111;
+  border-radius: 12px;
+  color: #111111;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.search-card-close-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 56%);
+}
+
+.search-card-close-dialog {
+  width: min(100%, 360px);
+  padding: 26px 22px 20px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 20px 70px rgb(0 0 0 / 28%);
+  text-align: center;
+}
+
+.search-card-close-dialog > span {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 15px;
+  place-items: center;
+  border: 2px solid #111111;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.search-card-close-dialog h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.search-card-close-dialog > p {
+  margin: 10px 0 18px;
+  color: #66666a;
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+
+.search-card-close-dialog > p.search-card-close-error {
+  margin: -5px 0 15px;
+  color: #b42318;
+  font-weight: 750;
+}
+
+.search-card-close-dialog > div {
+  display: grid;
+  gap: 8px;
+}
+
+.search-card-close-dialog button {
+  min-height: 46px;
+  border-radius: 11px;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.search-card-close-dialog button:first-child {
+  border: 1px solid #111111;
+  color: #ffffff;
+  background: #111111;
+}
+
+.search-card-close-dialog button:last-child {
+  border: 1px solid #d8d8da;
+  color: #111111;
+  background: #ffffff;
+}
+
+.search-card-close-dialog button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.search-card-detail-actions button:focus-visible,
+.search-card-close-dialog button:focus-visible {
+  outline: 3px solid #999999;
+  outline-offset: 3px;
+}

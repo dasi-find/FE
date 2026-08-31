@@ -4,11 +4,19 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getSearchCard, type SearchCardDetail } from '../features/searchCard/api/searchCardApi'
+import {
+  closeSearchCard,
+  getSearchCard,
+  type SearchCardDetail,
+} from '../features/searchCard/api/searchCardApi'
 import { SearchCardDetailPage } from './SearchCardDetailPage'
 
-vi.mock('../features/searchCard/api/searchCardApi', () => ({ getSearchCard: vi.fn() }))
+vi.mock('../features/searchCard/api/searchCardApi', () => ({
+  closeSearchCard: vi.fn(),
+  getSearchCard: vi.fn(),
+}))
 
+const mockedCloseSearchCard = vi.mocked(closeSearchCard)
 const mockedGetSearchCard = vi.mocked(getSearchCard)
 
 const searchCard: SearchCardDetail = {
@@ -48,7 +56,10 @@ const searchCard: SearchCardDetail = {
 }
 
 describe('SearchCardDetailPage', () => {
-  beforeEach(() => mockedGetSearchCard.mockReset())
+  beforeEach(() => {
+    mockedCloseSearchCard.mockReset()
+    mockedGetSearchCard.mockReset()
+  })
 
   it('수색카드 상세 정보와 후보 목록 링크를 표시한다', async () => {
     mockedGetSearchCard.mockResolvedValue(searchCard)
@@ -66,6 +77,46 @@ describe('SearchCardDetailPage', () => {
       'href',
       '/search-cards/12/edit',
     )
+    expect(screen.getByRole('button', { name: '수색 종료' })).toBeInTheDocument()
+  })
+
+  it('확인 후 수색을 종료하고 상세 상태를 갱신한다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue(searchCard)
+    mockedCloseSearchCard.mockResolvedValue({
+      searchCardId: 12,
+      status: 'CLOSED',
+      closedAt: '2026-08-31T16:20:00',
+    })
+    renderPage('/search-cards/12')
+
+    await user.click(await screen.findByRole('button', { name: '수색 종료' }))
+    expect(screen.getByRole('dialog', { name: '수색을 종료할까요?' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '종료하기' }))
+
+    expect(await screen.findByText('종료')).toBeInTheDocument()
+    expect(mockedCloseSearchCard).toHaveBeenCalledWith(12)
+    expect(screen.queryByRole('button', { name: '수색 종료' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: '수색카드 수정' })).not.toBeInTheDocument()
+  })
+
+  it('수색 종료 실패를 알리고 다시 시도할 수 있다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue(searchCard)
+    mockedCloseSearchCard.mockRejectedValueOnce(new Error('종료 실패')).mockResolvedValueOnce({
+      searchCardId: 12,
+      status: 'CLOSED',
+      closedAt: '2026-08-31T16:20:00',
+    })
+    renderPage('/search-cards/12')
+
+    await user.click(await screen.findByRole('button', { name: '수색 종료' }))
+    await user.click(screen.getByRole('button', { name: '종료하기' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('수색을 종료하지 못했어요.')
+
+    await user.click(screen.getByRole('button', { name: '종료하기' }))
+    expect(await screen.findByText('종료')).toBeInTheDocument()
+    expect(mockedCloseSearchCard).toHaveBeenCalledTimes(2)
   })
 
   it('잘못된 수색카드 ID는 API를 호출하지 않고 목록 이동을 안내한다', () => {
