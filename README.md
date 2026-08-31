@@ -57,6 +57,7 @@ npm run dev
 | Output Directory  | `dist`                        |
 | 운영 도메인       | `https://dasifind.vercel.app` |
 | Backend API URL   | `/api`                        |
+| API Proxy Target  | CloudFront HTTPS 배포         |
 
 Vercel의 Production 환경변수에는 카카오맵 키만 등록합니다.
 
@@ -70,9 +71,9 @@ Production과 Preview 빌드의 API Base URL은 `/api`로 고정됩니다.
 로컬 `.env` 파일은 Vercel에 자동 반영되지 않습니다. Vercel 환경변수를 변경하면
 새 배포를 실행해야 합니다.
 
-`vercel.json`은 `/api/:path*` 요청을 EC2 백엔드로 전달합니다. 브라우저는
-Vercel의 HTTPS 주소만 호출하므로 HTTP 백엔드 직접 호출로 인한 mixed content를
-피할 수 있습니다. API rewrite는 React Router의 SPA fallback보다 먼저 적용합니다.
+`vercel.json`은 `/api/:path*` 요청을 CloudFront HTTPS 배포로 전달합니다. 브라우저는
+Vercel의 동일 출처 `/api`만 호출하며, CloudFront가 백엔드 오리진 연결을 담당합니다.
+API rewrite는 React Router의 SPA fallback보다 먼저 적용합니다.
 
 ## 명령어
 

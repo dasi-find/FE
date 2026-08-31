@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://3.38.75.41/api/:path*"
+      "destination": "https://d155nir5w4stya.cloudfront.net/api/:path*"
     },
     {
       "source": "/(.*)",
