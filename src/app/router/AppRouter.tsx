@@ -8,6 +8,7 @@ import { LandingPage } from '../../pages/LandingPage'
 import { LoginPage } from '../../pages/LoginPage'
 import { NewSearchCardPage } from '../../pages/NewSearchCardPage'
 import { NotFoundPage } from '../../pages/NotFoundPage'
+import { ProfilePage } from '../../pages/ProfilePage'
 import { SignupPage } from '../../pages/SignupPage'
 
 const router = createBrowserRouter([
@@ -19,6 +20,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HomePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/profile',
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
       </ProtectedRoute>
     ),
   },
