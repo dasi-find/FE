@@ -35,7 +35,17 @@ export function SearchCardDetailPage() {
             ‹
           </Link>
           <strong>수색카드 상세</strong>
-          <span />
+          {isValidId && searchCardQuery.data?.status === 'ACTIVE' ? (
+            <Link
+              className="search-card-detail-edit-link"
+              to={`/search-cards/${parsedSearchCardId}/edit`}
+              aria-label="수색카드 수정"
+            >
+              수정
+            </Link>
+          ) : (
+            <span />
+          )}
         </header>
 
         <div className="candidate-page-content search-card-detail-content">

@@ -62,6 +62,10 @@ describe('SearchCardDetailPage', () => {
       'href',
       '/search-cards/12/candidates',
     )
+    expect(screen.getByRole('link', { name: '수색카드 수정' })).toHaveAttribute(
+      'href',
+      '/search-cards/12/edit',
+    )
   })
 
   it('잘못된 수색카드 ID는 API를 호출하지 않고 목록 이동을 안내한다', () => {

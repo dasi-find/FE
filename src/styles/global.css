@@ -3273,3 +3273,65 @@ small {
     height: 94px;
   }
 }
+
+.candidate-header a.search-card-detail-edit-link {
+  font-size: 0.62rem;
+  font-weight: 850;
+}
+
+.search-card-edit-content {
+  padding: 0 24px 48px;
+}
+
+.search-card-edit-intro {
+  padding: 26px 0 2px;
+}
+
+.search-card-edit-intro p {
+  margin: 0 0 9px;
+  color: #77777c;
+  font-size: 0.58rem;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+}
+
+.search-card-edit-intro h1 {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.25;
+  letter-spacing: -0.055em;
+}
+
+.search-card-edit-intro > span {
+  display: block;
+  margin-top: 11px;
+  color: #77777c;
+  font-size: 0.67rem;
+  line-height: 1.55;
+}
+
+.search-card-edit-section {
+  margin-top: 26px;
+  padding-top: 25px;
+}
+
+.search-card-edit-form .search-wizard-footer {
+  padding-bottom: max(4px, env(safe-area-inset-bottom));
+}
+
+.search-card-edit-form .search-secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-card-edit-form .search-submit-error {
+  margin-top: 22px;
+}
+
+@media (max-width: 370px) {
+  .search-card-edit-content {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+}
