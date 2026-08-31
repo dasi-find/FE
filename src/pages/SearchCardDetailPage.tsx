@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import {
   closeSearchCard,
+  deleteSearchCard,
   getSearchCard,
   type SearchCardDetail,
   type SearchCardStatus,
@@ -87,8 +88,11 @@ export function SearchCardDetailPage() {
 }
 
 function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail }) {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const canDelete = ['FOUND', 'CLOSED', 'EXPIRED'].includes(searchCard.status)
   const closeMutation = useMutation({
     mutationFn: () => closeSearchCard(searchCard.id),
     onSuccess: async (closedSearchCard) => {
@@ -100,6 +104,17 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
         queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
       ])
       setIsCloseDialogOpen(false)
+    },
+  })
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteSearchCard(searchCard.id),
+    onSuccess: async () => {
+      queryClient.removeQueries({ queryKey: ['search-card', searchCard.id], exact: true })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['search-cards'] }),
+        queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
+      ])
+      navigate('/search-cards', { replace: true })
     },
   })
 
@@ -205,6 +220,16 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
         </section>
       )}
 
+      {canDelete && (
+        <section className="search-card-detail-actions search-card-delete-actions">
+          <h2>수색카드 관리</h2>
+          <p>더 이상 보관할 필요가 없는 수색카드를 목록에서 완전히 삭제할 수 있어요.</p>
+          <button type="button" onClick={() => setIsDeleteDialogOpen(true)}>
+            수색카드 삭제
+          </button>
+        </section>
+      )}
+
       {isCloseDialogOpen && (
         <div className="search-card-close-backdrop">
           <div
@@ -241,6 +266,45 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
                 }}
               >
                 계속 수색하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteDialogOpen && (
+        <div className="search-card-close-backdrop">
+          <div
+            className="search-card-close-dialog search-card-delete-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="search-card-delete-title"
+          >
+            <span aria-hidden="true">!</span>
+            <h2 id="search-card-delete-title">수색카드를 삭제할까요?</h2>
+            <p>삭제하면 수색카드와 연결된 후보 기록을 다시 확인할 수 없어요.</p>
+            {deleteMutation.isError && (
+              <p className="search-card-close-error" role="alert">
+                수색카드를 삭제하지 못했어요. 다시 시도해 주세요.
+              </p>
+            )}
+            <div>
+              <button
+                type="button"
+                disabled={deleteMutation.isPending}
+                onClick={() => deleteMutation.mutate()}
+              >
+                {deleteMutation.isPending ? '삭제 중...' : '삭제하기'}
+              </button>
+              <button
+                type="button"
+                disabled={deleteMutation.isPending}
+                onClick={() => {
+                  deleteMutation.reset()
+                  setIsDeleteDialogOpen(false)
+                }}
+              >
+                취소
               </button>
             </div>
           </div>

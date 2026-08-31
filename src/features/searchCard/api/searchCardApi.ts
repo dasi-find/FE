@@ -192,3 +192,8 @@ export async function closeSearchCard(searchCardId: number) {
   )
   return data.result
 }
+
+export async function deleteSearchCard(searchCardId: number) {
+  const { data } = await httpClient.delete<ApiResponse<null>>(`/v1/search-cards/${searchCardId}`)
+  return data.result
+}
