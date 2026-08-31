@@ -5,6 +5,7 @@ import {
   createSearchCard,
   deleteSearchCardImage,
   getSearchCardAnalysis,
+  getSearchCard,
   getSearchCards,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
@@ -152,5 +153,34 @@ describe('searchCardApi', () => {
     expect(mockedGet).toHaveBeenLastCalledWith('/v1/search-cards', {
       params: { page: 1, size: 20 },
     })
+  })
+
+  it('수색카드 ID로 상세 정보를 조회한다', async () => {
+    const detail = {
+      id: 12,
+      itemName: '남색 카드지갑',
+      status: 'ACTIVE' as const,
+      imageUrls: ['/wallet.jpg'],
+      category: 'WALLET',
+      colors: ['남색'],
+      brand: null,
+      material: '가죽',
+      featureDescription: '은색 로고',
+      lostDate: '2026-08-17',
+      lostStartTime: null,
+      lostEndTime: null,
+      lostLocation: analysisPayload.lostLocation,
+      analysis: null,
+      searchExpiresAt: '2026-09-16T23:59:59',
+      unreadCandidateCount: 2,
+      bestCandidateScore: 82,
+    }
+    mockedGet.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: detail },
+    })
+
+    await expect(getSearchCard(12)).resolves.toEqual(detail)
+
+    expect(mockedGet).toHaveBeenCalledWith('/v1/search-cards/12')
   })
 })
