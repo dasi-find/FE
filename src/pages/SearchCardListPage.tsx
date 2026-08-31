@@ -111,7 +111,7 @@ export function SearchCardListPage() {
                   <Link
                     className="search-card-list-item"
                     key={searchCard.id}
-                    to={`/search-cards/${searchCard.id}/candidates`}
+                    to={`/search-cards/${searchCard.id}`}
                   >
                     <div className="search-card-list-image">
                       {searchCard.imageUrl ? (

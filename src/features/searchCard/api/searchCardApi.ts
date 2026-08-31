@@ -68,6 +68,26 @@ export type SearchCardSummary = {
   searchExpiresAt: string | null
 }
 
+export type SearchCardDetail = {
+  id: number
+  itemName: string
+  status: SearchCardStatus
+  imageUrls: string[]
+  category: string
+  colors: string[]
+  brand: string | null
+  material: string | null
+  featureDescription: string | null
+  lostDate: string
+  lostStartTime: string | null
+  lostEndTime: string | null
+  lostLocation: LostLocationPayload
+  analysis: SearchCardAnalysis | null
+  searchExpiresAt: string | null
+  unreadCandidateCount: number
+  bestCandidateScore: number | null
+}
+
 export type SearchCardListFilter = 'ALL' | 'ACTIVE' | 'FOUND' | 'CLOSED' | 'EXPIRED'
 
 export async function uploadSearchCardImage(file: File, imageType: SearchCardImageType) {
@@ -128,6 +148,13 @@ export async function getSearchCards({
         size,
       },
     },
+  )
+  return data.result
+}
+
+export async function getSearchCard(searchCardId: number) {
+  const { data } = await httpClient.get<ApiResponse<SearchCardDetail>>(
+    `/v1/search-cards/${searchCardId}`,
   )
   return data.result
 }
