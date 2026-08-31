@@ -79,6 +79,13 @@ export async function requestSearchCardAnalysis(payload: SearchCardAnalysisReque
   return data.result
 }
 
+export async function getSearchCardAnalysis(analysisId: number) {
+  const { data } = await httpClient.get<ApiResponse<SearchCardAnalysis>>(
+    `/v1/search-card-analyses/${analysisId}`,
+  )
+  return data.result
+}
+
 export async function createSearchCard(payload: CreateSearchCardRequest) {
   const { data } = await httpClient.post<ApiResponse<CreatedSearchCard>>(
     '/v1/search-cards',
