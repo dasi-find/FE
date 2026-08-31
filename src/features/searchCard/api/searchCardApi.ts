@@ -88,6 +88,19 @@ export type SearchCardDetail = {
   bestCandidateScore: number | null
 }
 
+export type UpdateSearchCardRequest = {
+  category: string
+  itemName: string
+  color: string[]
+  brand: string | null
+  material: string | null
+  featureDescription: string | null
+  lostDate: string
+  lostStartTime: string | null
+  lostEndTime: string | null
+  lostLocation: LostLocationPayload
+}
+
 export type SearchCardListFilter = 'ALL' | 'ACTIVE' | 'FOUND' | 'CLOSED' | 'EXPIRED'
 
 export async function uploadSearchCardImage(file: File, imageType: SearchCardImageType) {
@@ -155,6 +168,14 @@ export async function getSearchCards({
 export async function getSearchCard(searchCardId: number) {
   const { data } = await httpClient.get<ApiResponse<SearchCardDetail>>(
     `/v1/search-cards/${searchCardId}`,
+  )
+  return data.result
+}
+
+export async function updateSearchCard(searchCardId: number, request: UpdateSearchCardRequest) {
+  const { data } = await httpClient.patch<ApiResponse<SearchCardDetail>>(
+    `/v1/search-cards/${searchCardId}`,
+    request,
   )
   return data.result
 }

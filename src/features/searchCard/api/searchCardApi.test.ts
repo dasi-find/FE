@@ -8,16 +8,18 @@ import {
   getSearchCard,
   getSearchCards,
   requestSearchCardAnalysis,
+  updateSearchCard,
   uploadSearchCardImage,
   type SearchCardAnalysisRequest,
 } from './searchCardApi'
 
 vi.mock('../../../api/httpClient', () => ({
-  httpClient: { delete: vi.fn(), get: vi.fn(), post: vi.fn() },
+  httpClient: { delete: vi.fn(), get: vi.fn(), patch: vi.fn(), post: vi.fn() },
 }))
 
 const mockedDelete = vi.mocked(httpClient.delete)
 const mockedGet = vi.mocked(httpClient.get)
+const mockedPatch = vi.mocked(httpClient.patch)
 const mockedPost = vi.mocked(httpClient.post)
 
 const analysisPayload: SearchCardAnalysisRequest = {
@@ -43,6 +45,7 @@ describe('searchCardApi', () => {
   beforeEach(() => {
     mockedDelete.mockReset()
     mockedGet.mockReset()
+    mockedPatch.mockReset()
     mockedPost.mockReset()
   })
 
@@ -182,5 +185,38 @@ describe('searchCardApi', () => {
     await expect(getSearchCard(12)).resolves.toEqual(detail)
 
     expect(mockedGet).toHaveBeenCalledWith('/v1/search-cards/12')
+  })
+
+  it('수색카드 수정 내용을 전달한다', async () => {
+    const request = {
+      category: 'WALLET',
+      itemName: '남색 카드지갑',
+      color: ['남색'],
+      brand: null,
+      material: '가죽',
+      featureDescription: '은색 로고',
+      lostDate: '2026-08-17',
+      lostStartTime: null,
+      lostEndTime: null,
+      lostLocation: analysisPayload.lostLocation,
+    }
+    const detail = {
+      id: 12,
+      ...request,
+      colors: request.color,
+      status: 'ACTIVE' as const,
+      imageUrls: [],
+      analysis: null,
+      searchExpiresAt: '2026-09-16T23:59:59',
+      unreadCandidateCount: 0,
+      bestCandidateScore: null,
+    }
+    mockedPatch.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: detail },
+    })
+
+    await expect(updateSearchCard(12, request)).resolves.toEqual(detail)
+
+    expect(mockedPatch).toHaveBeenCalledWith('/v1/search-cards/12', request)
   })
 })

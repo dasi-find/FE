@@ -12,6 +12,7 @@ import { ProfilePage } from '../../pages/ProfilePage'
 import { SignupPage } from '../../pages/SignupPage'
 import { SearchCardListPage } from '../../pages/SearchCardListPage'
 import { SearchCardDetailPage } from '../../pages/SearchCardDetailPage'
+import { SearchCardEditPage } from '../../pages/SearchCardEditPage'
 
 const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
@@ -54,6 +55,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <SearchCardDetailPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/search-cards/:searchCardId/edit',
+    element: (
+      <ProtectedRoute>
+        <SearchCardEditPage />
       </ProtectedRoute>
     ),
   },
