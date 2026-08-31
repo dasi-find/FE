@@ -101,6 +101,12 @@ export type UpdateSearchCardRequest = {
   lostLocation: LostLocationPayload
 }
 
+export type ClosedSearchCard = {
+  searchCardId: number
+  status: 'CLOSED'
+  closedAt: string
+}
+
 export type SearchCardListFilter = 'ALL' | 'ACTIVE' | 'FOUND' | 'CLOSED' | 'EXPIRED'
 
 export async function uploadSearchCardImage(file: File, imageType: SearchCardImageType) {
@@ -176,6 +182,13 @@ export async function updateSearchCard(searchCardId: number, request: UpdateSear
   const { data } = await httpClient.patch<ApiResponse<SearchCardDetail>>(
     `/v1/search-cards/${searchCardId}`,
     request,
+  )
+  return data.result
+}
+
+export async function closeSearchCard(searchCardId: number) {
+  const { data } = await httpClient.patch<ApiResponse<ClosedSearchCard>>(
+    `/v1/search-cards/${searchCardId}/close`,
   )
   return data.result
 }

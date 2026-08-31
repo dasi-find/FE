@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { httpClient } from '../../../api/httpClient'
 import {
+  closeSearchCard,
   createSearchCard,
   deleteSearchCardImage,
   getSearchCardAnalysis,
@@ -218,5 +219,20 @@ describe('searchCardApi', () => {
     await expect(updateSearchCard(12, request)).resolves.toEqual(detail)
 
     expect(mockedPatch).toHaveBeenCalledWith('/v1/search-cards/12', request)
+  })
+
+  it('수색카드 수색 종료를 요청한다', async () => {
+    const closed = {
+      searchCardId: 12,
+      status: 'CLOSED' as const,
+      closedAt: '2026-08-31T16:20:00',
+    }
+    mockedPatch.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: closed },
+    })
+
+    await expect(closeSearchCard(12)).resolves.toEqual(closed)
+
+    expect(mockedPatch).toHaveBeenCalledWith('/v1/search-cards/12/close')
   })
 })
