@@ -1,4 +1,4 @@
-import type { ApiResponse } from '../../../api/types'
+import type { ApiResponse, PageResult } from '../../../api/types'
 import { httpClient } from '../../../api/httpClient'
 
 export type SearchCardImageType = 'ACTUAL' | 'REFERENCE'
@@ -54,6 +54,22 @@ export type CreatedSearchCard = {
   initialCandidateCount: number
 }
 
+export type SearchCardStatus = 'DRAFT' | 'ANALYZING' | 'ACTIVE' | 'FOUND' | 'CLOSED' | 'EXPIRED'
+
+export type SearchCardSummary = {
+  id: number
+  itemName: string
+  status: SearchCardStatus
+  imageUrl: string | null
+  lostDate: string
+  lostPlaceName: string
+  unreadCandidateCount: number
+  bestCandidateScore: number | null
+  searchExpiresAt: string | null
+}
+
+export type SearchCardListFilter = 'ALL' | 'ACTIVE' | 'FOUND' | 'CLOSED' | 'EXPIRED'
+
 export async function uploadSearchCardImage(file: File, imageType: SearchCardImageType) {
   const formData = new FormData()
   formData.append('file', file)
@@ -90,6 +106,28 @@ export async function createSearchCard(payload: CreateSearchCardRequest) {
   const { data } = await httpClient.post<ApiResponse<CreatedSearchCard>>(
     '/v1/search-cards',
     payload,
+  )
+  return data.result
+}
+
+export async function getSearchCards({
+  status,
+  page,
+  size = 10,
+}: {
+  status: SearchCardListFilter
+  page: number
+  size?: number
+}) {
+  const { data } = await httpClient.get<ApiResponse<PageResult<SearchCardSummary>>>(
+    '/v1/search-cards',
+    {
+      params: {
+        ...(status === 'ALL' ? {} : { status }),
+        page,
+        size,
+      },
+    },
   )
   return data.result
 }
