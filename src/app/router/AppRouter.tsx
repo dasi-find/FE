@@ -10,6 +10,7 @@ import { NewSearchCardPage } from '../../pages/NewSearchCardPage'
 import { NotFoundPage } from '../../pages/NotFoundPage'
 import { ProfilePage } from '../../pages/ProfilePage'
 import { SignupPage } from '../../pages/SignupPage'
+import { SearchCardListPage } from '../../pages/SearchCardListPage'
 
 const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
@@ -28,6 +29,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/search-cards',
+    element: (
+      <ProtectedRoute>
+        <SearchCardListPage />
       </ProtectedRoute>
     ),
   },

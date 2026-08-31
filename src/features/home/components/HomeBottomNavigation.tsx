@@ -2,23 +2,43 @@ import { Link } from 'react-router-dom'
 
 type HomeBottomNavigationProps = {
   unreadNotificationCount: number
+  active?: 'home' | 'search' | 'candidates' | 'notifications'
 }
 
-export function HomeBottomNavigation({ unreadNotificationCount }: HomeBottomNavigationProps) {
+export function HomeBottomNavigation({
+  unreadNotificationCount,
+  active = 'home',
+}: HomeBottomNavigationProps) {
   return (
     <nav className="home-bottom-nav" aria-label="주요 메뉴">
-      <Link className="home-nav-item is-active" to="/home" aria-current="page">
+      <Link
+        className={`home-nav-item ${active === 'home' ? 'is-active' : ''}`}
+        to="/home"
+        aria-current={active === 'home' ? 'page' : undefined}
+      >
         <span aria-hidden="true">⌂</span>홈
       </Link>
-      <Link className="home-nav-item" to="/search-cards/new">
+      <Link
+        className={`home-nav-item ${active === 'search' ? 'is-active' : ''}`}
+        to="/search-cards"
+        aria-current={active === 'search' ? 'page' : undefined}
+      >
         <span aria-hidden="true">＋</span>
         수색
       </Link>
-      <Link className="home-nav-item" to="/home#active-search-title">
+      <Link
+        className={`home-nav-item ${active === 'candidates' ? 'is-active' : ''}`}
+        to="/home#active-search-title"
+        aria-current={active === 'candidates' ? 'page' : undefined}
+      >
         <span aria-hidden="true">≋</span>
         후보
       </Link>
-      <Link className="home-nav-item" to="/notifications">
+      <Link
+        className={`home-nav-item ${active === 'notifications' ? 'is-active' : ''}`}
+        to="/notifications"
+        aria-current={active === 'notifications' ? 'page' : undefined}
+      >
         <span className="home-nav-icon" aria-hidden="true">
           ●
           {unreadNotificationCount > 0 && (

@@ -5,6 +5,7 @@ import {
   createSearchCard,
   deleteSearchCardImage,
   getSearchCardAnalysis,
+  getSearchCards,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
   type SearchCardAnalysisRequest,
@@ -128,5 +129,28 @@ describe('searchCardApi', () => {
     await expect(getSearchCardAnalysis(801)).resolves.toEqual(analysis)
 
     expect(mockedGet).toHaveBeenCalledWith('/v1/search-card-analyses/801')
+  })
+
+  it('상태와 페이지 조건으로 내 수색카드 목록을 조회한다', async () => {
+    const pageResult = {
+      content: [],
+      page: 0,
+      size: 10,
+      totalElements: 0,
+      hasNext: false,
+    }
+    mockedGet.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: pageResult },
+    })
+
+    await expect(getSearchCards({ status: 'ACTIVE', page: 0 })).resolves.toEqual(pageResult)
+    expect(mockedGet).toHaveBeenCalledWith('/v1/search-cards', {
+      params: { status: 'ACTIVE', page: 0, size: 10 },
+    })
+
+    await getSearchCards({ status: 'ALL', page: 1, size: 20 })
+    expect(mockedGet).toHaveBeenLastCalledWith('/v1/search-cards', {
+      params: { page: 1, size: 20 },
+    })
   })
 })
