@@ -4,6 +4,7 @@ import { httpClient } from '../../../api/httpClient'
 import {
   closeSearchCard,
   createSearchCard,
+  deleteSearchCard,
   deleteSearchCardImage,
   getSearchCardAnalysis,
   getSearchCard,
@@ -234,5 +235,15 @@ describe('searchCardApi', () => {
     await expect(closeSearchCard(12)).resolves.toEqual(closed)
 
     expect(mockedPatch).toHaveBeenCalledWith('/v1/search-cards/12/close')
+  })
+
+  it('수색카드 삭제를 요청한다', async () => {
+    mockedDelete.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: null },
+    })
+
+    await expect(deleteSearchCard(12)).resolves.toBeNull()
+
+    expect(mockedDelete).toHaveBeenCalledWith('/v1/search-cards/12')
   })
 })

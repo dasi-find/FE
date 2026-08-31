@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   closeSearchCard,
+  deleteSearchCard,
   getSearchCard,
   type SearchCardDetail,
 } from '../features/searchCard/api/searchCardApi'
@@ -13,10 +14,12 @@ import { SearchCardDetailPage } from './SearchCardDetailPage'
 
 vi.mock('../features/searchCard/api/searchCardApi', () => ({
   closeSearchCard: vi.fn(),
+  deleteSearchCard: vi.fn(),
   getSearchCard: vi.fn(),
 }))
 
 const mockedCloseSearchCard = vi.mocked(closeSearchCard)
+const mockedDeleteSearchCard = vi.mocked(deleteSearchCard)
 const mockedGetSearchCard = vi.mocked(getSearchCard)
 
 const searchCard: SearchCardDetail = {
@@ -58,6 +61,7 @@ const searchCard: SearchCardDetail = {
 describe('SearchCardDetailPage', () => {
   beforeEach(() => {
     mockedCloseSearchCard.mockReset()
+    mockedDeleteSearchCard.mockReset()
     mockedGetSearchCard.mockReset()
   })
 
@@ -78,6 +82,7 @@ describe('SearchCardDetailPage', () => {
       '/search-cards/12/edit',
     )
     expect(screen.getByRole('button', { name: '수색 종료' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '수색카드 삭제' })).not.toBeInTheDocument()
   })
 
   it('확인 후 수색을 종료하고 상세 상태를 갱신한다', async () => {
@@ -119,6 +124,35 @@ describe('SearchCardDetailPage', () => {
     expect(mockedCloseSearchCard).toHaveBeenCalledTimes(2)
   })
 
+  it('종료된 수색카드를 확인 후 삭제하고 목록으로 이동한다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue({ ...searchCard, status: 'CLOSED' })
+    mockedDeleteSearchCard.mockResolvedValue(null)
+    renderPage('/search-cards/12')
+
+    await user.click(await screen.findByRole('button', { name: '수색카드 삭제' }))
+    expect(screen.getByRole('dialog', { name: '수색카드를 삭제할까요?' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '삭제하기' }))
+
+    expect(await screen.findByText('수색카드 목록 화면')).toBeInTheDocument()
+    expect(mockedDeleteSearchCard).toHaveBeenCalledWith(12)
+  })
+
+  it('수색카드 삭제 실패를 알리고 다시 시도할 수 있다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue({ ...searchCard, status: 'EXPIRED' })
+    mockedDeleteSearchCard.mockRejectedValueOnce(new Error('삭제 실패')).mockResolvedValueOnce(null)
+    renderPage('/search-cards/12')
+
+    await user.click(await screen.findByRole('button', { name: '수색카드 삭제' }))
+    await user.click(screen.getByRole('button', { name: '삭제하기' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('수색카드를 삭제하지 못했어요.')
+
+    await user.click(screen.getByRole('button', { name: '삭제하기' }))
+    expect(await screen.findByText('수색카드 목록 화면')).toBeInTheDocument()
+    expect(mockedDeleteSearchCard).toHaveBeenCalledTimes(2)
+  })
+
   it('잘못된 수색카드 ID는 API를 호출하지 않고 목록 이동을 안내한다', () => {
     renderPage('/search-cards/not-a-number')
 
@@ -155,6 +189,7 @@ function renderPage(initialEntry: string) {
       <MemoryRouter initialEntries={[initialEntry]}>
         <Routes>
           <Route path="/search-cards/:searchCardId" element={<SearchCardDetailPage />} />
+          <Route path="/search-cards" element={<p>수색카드 목록 화면</p>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
