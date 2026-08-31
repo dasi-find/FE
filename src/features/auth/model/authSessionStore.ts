@@ -49,6 +49,11 @@ export function saveRestoredAuthSession(user: AuthUser, accessToken: string) {
   notify()
 }
 
+export function updateCurrentUser(user: AuthUser) {
+  currentUser = user
+  notify()
+}
+
 export function clearAuthSession() {
   currentUser = null
   authSessionStatus = 'anonymous'

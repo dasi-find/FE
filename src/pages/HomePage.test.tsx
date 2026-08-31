@@ -63,6 +63,7 @@ describe('HomePage', () => {
       'href',
       '/search-cards/new',
     )
+    expect(screen.getByRole('link', { name: '내 정보' })).toHaveAttribute('href', '/profile')
     expect((await screen.findByText('남색 카드지갑')).closest('a')).toHaveAttribute(
       'href',
       '/search-cards/12/candidates',

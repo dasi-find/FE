@@ -35,6 +35,9 @@ export function HomePage() {
             <strong>다시찾음</strong>
           </Link>
           <div className="home-header-actions">
+            <Link className="home-profile" to="/profile" aria-label="내 정보">
+              {currentUser?.name.trim().charAt(0) || '나'}
+            </Link>
             <button
               className="home-logout"
               type="button"
