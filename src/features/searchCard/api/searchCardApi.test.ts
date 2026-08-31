@@ -4,16 +4,18 @@ import { httpClient } from '../../../api/httpClient'
 import {
   createSearchCard,
   deleteSearchCardImage,
+  getSearchCardAnalysis,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
   type SearchCardAnalysisRequest,
 } from './searchCardApi'
 
 vi.mock('../../../api/httpClient', () => ({
-  httpClient: { delete: vi.fn(), post: vi.fn() },
+  httpClient: { delete: vi.fn(), get: vi.fn(), post: vi.fn() },
 }))
 
 const mockedDelete = vi.mocked(httpClient.delete)
+const mockedGet = vi.mocked(httpClient.get)
 const mockedPost = vi.mocked(httpClient.post)
 
 const analysisPayload: SearchCardAnalysisRequest = {
@@ -38,6 +40,7 @@ const analysisPayload: SearchCardAnalysisRequest = {
 describe('searchCardApi', () => {
   beforeEach(() => {
     mockedDelete.mockReset()
+    mockedGet.mockReset()
     mockedPost.mockReset()
   })
 
@@ -104,5 +107,26 @@ describe('searchCardApi', () => {
       analysisId: 801,
       material: 'LEATHER',
     })
+  })
+
+  it('분석 ID로 최신 AI 분석 결과를 조회한다', async () => {
+    const analysis = {
+      analysisId: 801,
+      category: 'WALLET',
+      itemName: 'CARD_WALLET',
+      colors: ['NAVY'],
+      brand: null,
+      materials: ['LEATHER'],
+      ocrText: null,
+      features: ['은색 로고'],
+      modelVersion: 'v2',
+    }
+    mockedGet.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: analysis },
+    })
+
+    await expect(getSearchCardAnalysis(801)).resolves.toEqual(analysis)
+
+    expect(mockedGet).toHaveBeenCalledWith('/v1/search-card-analyses/801')
   })
 })

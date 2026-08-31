@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   createSearchCard,
   deleteSearchCardImage,
+  getSearchCardAnalysis,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
   type CreatedSearchCard,
@@ -36,6 +37,7 @@ export function NewSearchCardPage() {
   const [uploadedImageIds, setUploadedImageIds] = useState<number[]>([])
   const [createdCard, setCreatedCard] = useState<CreatedSearchCard | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
   const updateDraft = <Key extends keyof SearchCardDraft>(
@@ -119,6 +121,19 @@ export function NewSearchCardPage() {
     }
   }
 
+  const refreshAnalysis = async () => {
+    if (!analysis) return
+    setSubmitError('')
+    setIsRefreshingAnalysis(true)
+    try {
+      setAnalysis(await getSearchCardAnalysis(analysis.analysisId))
+    } catch (error) {
+      setSubmitError(getErrorMessage(error, '분석 결과를 다시 불러오지 못했어요.'))
+    } finally {
+      setIsRefreshingAnalysis(false)
+    }
+  }
+
   return (
     <main className="search-wizard-shell">
       <section className="search-wizard-screen">
@@ -158,8 +173,10 @@ export function NewSearchCardPage() {
             draft={draft}
             analysis={analysis}
             isSubmitting={isSubmitting}
+            isRefreshing={isRefreshingAnalysis}
             submitError={submitError}
             onEdit={() => setStep(1)}
+            onRefresh={refreshAnalysis}
             onStart={startSearch}
           />
         )}
@@ -481,15 +498,19 @@ function AnalysisStep({
   draft,
   analysis,
   isSubmitting,
+  isRefreshing,
   submitError,
   onEdit,
+  onRefresh,
   onStart,
 }: {
   draft: SearchCardDraft
   analysis: SearchCardAnalysis
   isSubmitting: boolean
+  isRefreshing: boolean
   submitError: string
   onEdit: () => void
+  onRefresh: () => void
   onStart: () => void
 }) {
   return (
@@ -537,7 +558,7 @@ function AnalysisStep({
         <button
           className="search-primary-button"
           type="button"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isRefreshing}
           onClick={onStart}
         >
           {isSubmitting ? '수색을 시작하고 있어요...' : '이 내용으로 수색 시작'}
@@ -545,7 +566,15 @@ function AnalysisStep({
         <button
           className="search-secondary-button"
           type="button"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isRefreshing}
+          onClick={onRefresh}
+        >
+          {isRefreshing ? '최신 결과를 불러오는 중...' : '최신 분석 결과 불러오기'}
+        </button>
+        <button
+          className="search-secondary-button"
+          type="button"
+          disabled={isSubmitting || isRefreshing}
           onClick={onEdit}
         >
           입력 내용 수정

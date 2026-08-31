@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createSearchCard,
   deleteSearchCardImage,
+  getSearchCardAnalysis,
   requestSearchCardAnalysis,
   uploadSearchCardImage,
 } from '../features/searchCard/api/searchCardApi'
@@ -14,12 +15,14 @@ import { NewSearchCardPage } from './NewSearchCardPage'
 vi.mock('../features/searchCard/api/searchCardApi', () => ({
   uploadSearchCardImage: vi.fn(),
   deleteSearchCardImage: vi.fn(),
+  getSearchCardAnalysis: vi.fn(),
   requestSearchCardAnalysis: vi.fn(),
   createSearchCard: vi.fn(),
 }))
 
 const mockedUpload = vi.mocked(uploadSearchCardImage)
 const mockedDeleteImage = vi.mocked(deleteSearchCardImage)
+const mockedGetAnalysis = vi.mocked(getSearchCardAnalysis)
 const mockedAnalysis = vi.mocked(requestSearchCardAnalysis)
 const mockedCreate = vi.mocked(createSearchCard)
 
@@ -27,6 +30,7 @@ describe('NewSearchCardPage', () => {
   beforeEach(() => {
     mockedUpload.mockReset()
     mockedDeleteImage.mockReset()
+    mockedGetAnalysis.mockReset()
     mockedAnalysis.mockReset()
     mockedCreate.mockReset()
   })
@@ -89,6 +93,28 @@ describe('NewSearchCardPage', () => {
         lostLocation: expect.objectContaining({ placeName: '판교역 스타벅스' }),
       }),
     )
+
+    mockedGetAnalysis.mockResolvedValueOnce({
+      analysisId: 801,
+      category: 'WALLET',
+      itemName: '카드지갑',
+      colors: ['남색'],
+      brand: null,
+      materials: ['가죽'],
+      ocrText: null,
+      features: ['최신 분석 특징'],
+      modelVersion: 'v2',
+    })
+    await user.click(screen.getByRole('button', { name: '최신 분석 결과 불러오기' }))
+
+    expect(await screen.findByText('최신 분석 특징')).toBeInTheDocument()
+    expect(mockedGetAnalysis).toHaveBeenCalledWith(801)
+
+    mockedGetAnalysis.mockRejectedValueOnce(new Error('최신 결과를 불러오지 못했어요.'))
+    await user.click(screen.getByRole('button', { name: '최신 분석 결과 불러오기' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('최신 결과를 불러오지 못했어요.')
+    expect(screen.getByText('최신 분석 특징')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '이 내용으로 수색 시작' }))
     expect(await screen.findByRole('heading', { name: '수색을 시작했어요.' })).toBeInTheDocument()
