@@ -49,6 +49,15 @@ export type CandidateViewResult = {
   viewedAt: string
 }
 
+export type CandidateFeedbackValue = Exclude<CandidateFeedback, null>
+
+export type CandidateFeedbackResult = {
+  candidateId: number
+  feedback: CandidateFeedbackValue
+  isExcluded: boolean
+  updatedAt: string
+}
+
 export async function getCandidates(searchCardId: number) {
   const candidates: CandidateSummary[] = []
   let page = 0
@@ -82,6 +91,17 @@ export async function markCandidateViewed(candidateId: number) {
   const { data } = await httpClient.post<ApiResponse<CandidateViewResult>>(
     `/v1/candidates/${candidateId}/view`,
     {},
+  )
+  return data.result
+}
+
+export async function submitCandidateFeedback(
+  candidateId: number,
+  feedback: CandidateFeedbackValue,
+) {
+  const { data } = await httpClient.patch<ApiResponse<CandidateFeedbackResult>>(
+    `/v1/candidates/${candidateId}/feedback`,
+    { feedback },
   )
   return data.result
 }

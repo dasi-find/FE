@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 
-import { getCandidates } from '../features/candidate/api/candidateApi'
+import { getCandidates, type CandidateFeedback } from '../features/candidate/api/candidateApi'
+
+const feedbackLabels: Record<Exclude<CandidateFeedback, null>, string> = {
+  VERY_SIMILAR: '많이 비슷함',
+  UNSURE: '확인 필요',
+  NOT_MINE: '내 물건 아님',
+}
 
 export function CandidateListPage() {
   const { searchCardId } = useParams()
@@ -60,6 +66,11 @@ export function CandidateListPage() {
                     <div className="candidate-list-badges">
                       {candidate.isNew && <span className="candidate-new-badge">!</span>}
                       <span>#{candidate.rank}</span>
+                      {candidate.feedback && (
+                        <span className="candidate-feedback-badge">
+                          {feedbackLabels[candidate.feedback]}
+                        </span>
+                      )}
                     </div>
                     <h2>{candidate.itemName}</h2>
                     <p>{candidate.storagePlace}</p>

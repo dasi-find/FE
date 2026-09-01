@@ -25,7 +25,7 @@ describe('CandidateListPage', () => {
         imageUrl: null,
         totalScore: 61,
         isNew: false,
-        feedback: null,
+        feedback: 'UNSURE',
         reasons: ['색상이 유사합니다.'],
       },
       {
@@ -53,6 +53,7 @@ describe('CandidateListPage', () => {
     expect(screen.getByLabelText('적합도 61점')).toBeInTheDocument()
     expect(screen.getByLabelText('적합도 82점')).toBeInTheDocument()
     expect(screen.getByText('!')).toBeInTheDocument()
+    expect(screen.getByText('확인 필요')).toBeInTheDocument()
     expect(mockedGetCandidates).toHaveBeenCalledWith(12)
   })
 
