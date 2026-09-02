@@ -23,11 +23,8 @@ export function HomePage() {
             <strong>다시찾음</strong>
           </Link>
           <div className="home-header-actions">
-            <Link className="home-notification" to="/notifications" aria-label="알림 목록">
-              알림
-              {(homeQuery.data?.unreadNotificationCount ?? 0) > 0 && (
-                <span>{formatBadge(homeQuery.data?.unreadNotificationCount ?? 0)}</span>
-              )}
+            <Link className="home-profile" to="/profile" aria-label="마이페이지">
+              {currentUser?.name.trim().charAt(0) || '나'}
             </Link>
           </div>
         </header>
@@ -35,7 +32,7 @@ export function HomePage() {
         <div className="home-content">
           <div className="home-intro">
             <p>안녕하세요, {currentUser?.name ?? '사용자'}님</p>
-            <h1>지금 수색 현황이에요.</h1>
+            <h1>확인할 소식부터 볼게요.</h1>
           </div>
 
           {homeQuery.isPending && <HomeLoading />}
@@ -48,51 +45,41 @@ export function HomePage() {
           )}
           {homeQuery.data && (
             <>
-              <section className="home-status-grid" aria-label="수색 현황 요약">
-                <Link to="/search-cards">
-                  <span>진행 중</span>
-                  <strong>{homeQuery.data.activeSearchCards.length}</strong>
-                  <small>수색</small>
-                </Link>
-                <Link to={getNewCandidateTarget(homeQuery.data.newCandidates)}>
-                  <span>새 후보</span>
-                  <strong>
-                    {homeQuery.data.newCandidates.filter((candidate) => candidate.isNew).length}
-                  </strong>
-                  <small>건</small>
-                </Link>
-                <Link to="/notifications">
-                  <span>안 읽은 알림</span>
-                  <strong>{homeQuery.data.unreadNotificationCount}</strong>
-                  <small>건</small>
-                </Link>
-              </section>
-
-              {homeQuery.data.newCandidates.some((candidate) => candidate.isNew) && (
+              {homeQuery.data.newCandidates.some((candidate) => candidate.isNew) ? (
                 <section className="home-section" aria-labelledby="new-candidate-title">
                   <div className="home-section-heading">
-                    <h2 id="new-candidate-title">새로 찾은 후보</h2>
+                    <h2 id="new-candidate-title">먼저 확인해 보세요</h2>
                   </div>
-                  <div className="home-candidate-list">
-                    {homeQuery.data.newCandidates
-                      .filter((candidate) => candidate.isNew)
-                      .slice(0, 2)
-                      .map((candidate) => (
-                        <Link
-                          className="home-candidate-card"
-                          key={candidate.id}
-                          to={`/candidates/${candidate.id}`}
-                        >
-                          <span>{candidate.storagePlace}</span>
-                          <h3>{candidate.itemName}</h3>
-                          <p>
-                            적합도 <strong>{formatScore(candidate.totalScore)}점</strong>
-                          </p>
-                          <i aria-hidden="true">›</i>
-                        </Link>
-                      ))}
-                  </div>
+                  {homeQuery.data.newCandidates
+                    .filter((candidate) => candidate.isNew)
+                    .slice(0, 1)
+                    .map((candidate) => (
+                      <Link
+                        className="home-featured-candidate"
+                        key={candidate.id}
+                        to={`/candidates/${candidate.id}`}
+                      >
+                        <span>새 후보</span>
+                        <h3>{candidate.itemName}</h3>
+                        <p>{candidate.storagePlace}에서 보관 중이에요.</p>
+                        <div>
+                          <small>적합도</small>
+                          <strong>{formatScore(candidate.totalScore)}점</strong>
+                        </div>
+                        <b>후보 확인하기</b>
+                      </Link>
+                    ))}
                 </section>
+              ) : (
+                homeQuery.data.activeSearchCards.length > 0 && (
+                  <div className="home-monitoring-card">
+                    <span aria-hidden="true">⌕</span>
+                    <div>
+                      <h2>새로운 후보를 확인하고 있어요.</h2>
+                      <p>후보가 발견되면 알림으로 바로 알려드릴게요.</p>
+                    </div>
+                  </div>
+                )
               )}
 
               <section className="home-section" aria-labelledby="active-search-title">
@@ -152,7 +139,10 @@ export function HomePage() {
           )}
         </div>
 
-        <HomeBottomNavigation active="home" />
+        <HomeBottomNavigation
+          active="home"
+          unreadNotificationCount={homeQuery.data?.unreadNotificationCount ?? 0}
+        />
       </section>
     </main>
   )
@@ -214,15 +204,6 @@ function formatLostDate(date: string) {
 
 function formatScore(score: number) {
   return Math.round(score)
-}
-
-function formatBadge(count: number) {
-  return count > 99 ? '99+' : count
-}
-
-function getNewCandidateTarget(candidates: Array<{ id: number; isNew: boolean }>) {
-  const candidate = candidates.find((item) => item.isNew)
-  return candidate ? `/candidates/${candidate.id}` : '/search-cards'
 }
 
 function getErrorMessage(error: unknown) {

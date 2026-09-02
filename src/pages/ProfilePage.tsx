@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
+import { clearAccessToken } from '../api/accessTokenStore'
+import { logout } from '../features/auth/api/authApi'
 import { updateCurrentUser } from '../features/auth/model/authSessionStore'
 import {
   getMyProfile,
@@ -13,13 +15,23 @@ import {
 const profileQueryKey = ['my-profile'] as const
 
 export function ProfilePage() {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const profileQuery = useQuery({ queryKey: profileQueryKey, queryFn: getMyProfile })
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      clearAccessToken()
+      queryClient.clear()
+      navigate('/login', { replace: true })
+    },
+  })
 
   return (
     <main className="profile-shell">
       <section className="profile-screen">
         <header className="profile-header">
-          <Link to="/settings" aria-label="설정으로 돌아가기">
+          <Link to="/home" aria-label="홈으로 돌아가기">
             ‹
           </Link>
           <strong>내 정보</strong>
@@ -55,7 +67,24 @@ export function ProfilePage() {
             </div>
           )}
 
-          {profileQuery.data && <ProfileForm profile={profileQuery.data} />}
+          {profileQuery.data && (
+            <>
+              <ProfileForm profile={profileQuery.data} />
+              {logoutMutation.isError && (
+                <p className="profile-logout-error" role="alert">
+                  로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.
+                </p>
+              )}
+              <button
+                className="profile-logout"
+                type="button"
+                disabled={logoutMutation.isPending}
+                onClick={() => logoutMutation.mutate()}
+              >
+                {logoutMutation.isPending ? '로그아웃 중...' : '로그아웃'}
+              </button>
+            </>
+          )}
         </div>
       </section>
     </main>

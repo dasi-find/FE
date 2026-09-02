@@ -14,7 +14,6 @@ import { SignupPage } from '../../pages/SignupPage'
 import { SearchCardListPage } from '../../pages/SearchCardListPage'
 import { SearchCardDetailPage } from '../../pages/SearchCardDetailPage'
 import { SearchCardEditPage } from '../../pages/SearchCardEditPage'
-import { SettingsPage } from '../../pages/SettingsPage'
 
 const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
@@ -25,14 +24,6 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HomePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/settings',
-    element: (
-      <ProtectedRoute>
-        <SettingsPage />
       </ProtectedRoute>
     ),
   },

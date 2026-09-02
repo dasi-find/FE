@@ -54,8 +54,9 @@ describe('HomePage', () => {
     renderHome()
 
     expect(screen.getByText('안녕하세요, 민준님')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '지금 수색 현황이에요.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '확인할 소식부터 볼게요.' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /새 수색 시작하기/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '마이페이지' })).toHaveAttribute('href', '/profile')
     expect((await screen.findByText('새 후보')).closest('a')).toHaveAttribute(
       'href',
       '/candidates/301',
@@ -70,7 +71,7 @@ describe('HomePage', () => {
       'href',
       '/candidates/301',
     )
-    expect(screen.getByRole('link', { name: /설정/ })).toHaveAttribute('href', '/settings')
+    expect(screen.getByRole('link', { name: /알림/ })).toHaveAttribute('href', '/notifications')
   })
 
   it('수색과 후보가 없을 때 다음 행동을 안내한다', async () => {

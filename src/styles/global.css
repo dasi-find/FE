@@ -759,21 +759,6 @@ small {
   width: 4px;
 }
 
-.home-notification {
-  position: relative;
-  display: grid;
-  width: auto;
-  height: 38px;
-  place-items: center;
-  border: 1px solid #e2e2e4;
-  padding: 0 13px;
-  border-radius: 19px;
-  color: #111111;
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
 .home-header-actions {
   display: flex;
   align-items: center;
@@ -791,52 +776,6 @@ small {
   font-size: 0.72rem;
   font-weight: 900;
   text-decoration: none;
-}
-
-.home-logout {
-  min-height: 38px;
-  padding: 0 12px;
-  border: 1px solid #e2e2e4;
-  border-radius: 999px;
-  color: #333333;
-  background: #ffffff;
-  font: inherit;
-  font-size: 0.68rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.home-logout:disabled {
-  color: #888888;
-  cursor: wait;
-}
-
-.home-logout-error {
-  margin: -8px 25px 4px;
-  padding: 9px 12px;
-  border: 1px solid #d8d8da;
-  border-radius: 10px;
-  color: #333333;
-  background: #f7f7f8;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.home-notification > span {
-  position: absolute;
-  top: -5px;
-  right: -6px;
-  display: grid;
-  min-width: 19px;
-  height: 19px;
-  place-items: center;
-  padding: 0 5px;
-  border: 2px solid #ffffff;
-  border-radius: 10px;
-  color: #ffffff;
-  background: #111111;
-  font-size: 0.58rem;
-  font-weight: 850;
 }
 
 .home-content {
@@ -862,66 +801,6 @@ small {
   font-size: 2.15rem;
   line-height: 1.08;
   letter-spacing: -0.065em;
-}
-
-.home-status-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.home-status-grid a {
-  display: grid;
-  min-width: 0;
-  min-height: 98px;
-  align-content: space-between;
-  padding: 13px 12px;
-  border: 1px solid #dedee0;
-  border-radius: 15px;
-  color: #111111;
-  background: #fafafa;
-  text-decoration: none;
-}
-
-.home-status-grid span {
-  overflow: hidden;
-  color: #6d6d72;
-  font-size: 0.6rem;
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.home-status-grid strong {
-  margin-top: 12px;
-  font-size: 1.55rem;
-  line-height: 1;
-}
-
-.home-status-grid small {
-  color: #77777c;
-  font-size: 0.58rem;
-}
-
-.home-start-button {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 25px;
-  border-radius: 17px;
-  color: #ffffff;
-  background: #111111;
-  font-size: 0.83rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.home-start-button > span {
-  font-size: 1.2rem;
-  font-weight: 400;
 }
 
 .home-section {
@@ -953,62 +832,101 @@ small {
   gap: 10px;
 }
 
-.home-candidate-list {
-  display: grid;
-  gap: 8px;
-}
-
-.home-candidate-card {
-  position: relative;
+.home-featured-candidate {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 12px;
-  padding: 15px 42px 15px 16px;
-  border: 1px solid #dedee0;
-  border-radius: 15px;
-  color: #111111;
-  background: #ffffff;
+  gap: 7px 18px;
+  padding: 20px;
+  border-radius: 19px;
+  color: #ffffff;
+  background: #111111;
   text-decoration: none;
 }
 
-.home-candidate-card > span {
+.home-featured-candidate > span {
   grid-column: 1 / -1;
-  overflow: hidden;
-  color: #77777c;
-  font-size: 0.6rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: fit-content;
+  padding: 4px 7px;
+  border: 1px solid #4b4b4e;
+  border-radius: 9px;
+  color: #dddddf;
+  font-size: 0.57rem;
+  font-weight: 850;
 }
 
-.home-candidate-card h3,
-.home-candidate-card p {
+.home-featured-candidate h3,
+.home-featured-candidate p {
+  grid-column: 1 / -1;
   margin: 0;
 }
 
-.home-candidate-card h3 {
-  overflow: hidden;
-  font-size: 0.82rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.home-featured-candidate h3 {
+  margin-top: 5px;
+  font-size: 1.12rem;
+  letter-spacing: -0.04em;
 }
 
-.home-candidate-card p {
+.home-featured-candidate p {
+  color: #aaaab0;
+  font-size: 0.68rem;
+}
+
+.home-featured-candidate > div {
+  display: grid;
+  margin-top: 15px;
+  gap: 3px;
+}
+
+.home-featured-candidate small {
+  color: #aaaab0;
+  font-size: 0.57rem;
+}
+
+.home-featured-candidate > div strong {
+  font-size: 1.2rem;
+}
+
+.home-featured-candidate > b {
+  align-self: end;
+  font-size: 0.67rem;
+}
+
+.home-monitoring-card {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  align-items: center;
+  gap: 13px;
+  margin-top: 28px;
+  padding: 17px;
+  border: 1px solid #dedee0;
+  border-radius: 17px;
+  background: #fafafa;
+}
+
+.home-monitoring-card > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #111111;
+}
+
+.home-monitoring-card h2,
+.home-monitoring-card p {
+  margin: 0;
+}
+
+.home-monitoring-card h2 {
+  font-size: 0.78rem;
+}
+
+.home-monitoring-card p {
+  margin-top: 4px;
   color: #77777c;
   font-size: 0.62rem;
-}
-
-.home-candidate-card p strong {
-  color: #111111;
-}
-
-.home-candidate-card > i {
-  position: absolute;
-  top: 50%;
-  right: 16px;
-  color: #77777c;
-  font-size: 1.25rem;
-  font-style: normal;
-  transform: translateY(-50%);
+  line-height: 1.45;
 }
 
 .search-summary-card,
@@ -1307,12 +1225,8 @@ small {
 
 .home-brand:focus-visible,
 .home-profile:focus-visible,
-.home-logout:focus-visible,
-.home-notification:focus-visible,
-.home-start-button:focus-visible,
 .home-section-heading a:focus-visible,
-.home-status-grid a:focus-visible,
-.home-candidate-card:focus-visible,
+.home-featured-candidate:focus-visible,
 .search-summary-card:focus-visible,
 .candidate-summary-card:focus-visible,
 .home-empty-card a:focus-visible,
@@ -1697,7 +1611,8 @@ small {
 .profile-toggle input:focus-visible + i,
 .profile-header a:focus-visible,
 .profile-state button:focus-visible,
-.profile-submit:focus-visible {
+.profile-submit:focus-visible,
+.profile-logout:focus-visible {
   outline: 3px solid #999999;
   outline-offset: 3px;
 }
@@ -1724,6 +1639,30 @@ small {
   color: #aaaaaa;
   background: #333333;
   cursor: wait;
+}
+
+.profile-logout {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 18px;
+  border: 1px solid #d7d7da;
+  border-radius: 13px;
+  color: #444449;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.profile-logout:disabled {
+  color: #99999d;
+  cursor: wait;
+}
+
+.profile-logout-error {
+  margin: 18px 0 0;
+  color: #8f1717;
+  font-size: 0.67rem;
 }
 
 @media (max-width: 520px) {

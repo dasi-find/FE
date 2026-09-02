@@ -43,7 +43,7 @@ describe('NotificationListPage', () => {
       'href',
       '/candidates/301',
     )
-    expect(screen.getByRole('link', { name: '설정' })).toHaveAttribute('href', '/settings')
+    expect(screen.getByRole('link', { name: '알림' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('안 읽음 필터와 다음 페이지 이동을 지원한다', async () => {
