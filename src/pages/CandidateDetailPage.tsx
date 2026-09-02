@@ -1,11 +1,13 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
   getCandidateDetail,
   markCandidateViewed,
+  submitCandidateFeedback,
   type CandidateDetail,
+  type CandidateFeedbackValue,
 } from '../features/candidate/api/candidateApi'
 import { CandidateHeader, CandidateImage, CandidateState, ScoreRing } from './CandidateListPage'
 
@@ -17,6 +19,16 @@ const scoreLabels: Array<[keyof CandidateDetail['scores'], string]> = [
   ['stationProximityScore', '보관기관 근접도'],
 ]
 
+const feedbackOptions: Array<{
+  value: CandidateFeedbackValue
+  label: string
+  description: string
+}> = [
+  { value: 'VERY_SIMILAR', label: '많이 비슷해요', description: '우선 확인할 후보로 표시해요.' },
+  { value: 'UNSURE', label: '잘 모르겠어요', description: '후보 목록에 그대로 유지해요.' },
+  { value: 'NOT_MINE', label: '제 물건이 아니에요', description: '후보 목록에서 제외해요.' },
+]
+
 export function CandidateDetailPage() {
   const queryClient = useQueryClient()
   const { candidateId } = useParams()
@@ -25,6 +37,24 @@ export function CandidateDetailPage() {
     queryKey: ['candidate', parsedCandidateId],
     queryFn: () => getCandidateDetail(parsedCandidateId),
     enabled: Number.isSafeInteger(parsedCandidateId) && parsedCandidateId > 0,
+  })
+  const feedbackMutation = useMutation({
+    mutationFn: (feedback: CandidateFeedbackValue) =>
+      submitCandidateFeedback(parsedCandidateId, feedback),
+    onSuccess: async (result) => {
+      queryClient.setQueryData<CandidateDetail>(['candidate', parsedCandidateId], (current) =>
+        current
+          ? { ...current, feedback: result.feedback, isExcluded: result.isExcluded }
+          : current,
+      )
+      if (!candidateQuery.data) return
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['candidates', candidateQuery.data.searchCardId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
+      ])
+    },
   })
 
   useEffect(() => {
@@ -121,6 +151,43 @@ export function CandidateDetailPage() {
                     <ScoreBar key={key} label={label} score={candidate.scores[key]} />
                   ))}
                 </div>
+              </DetailSection>
+
+              <DetailSection number="04" title="이 후보는 어떤가요?">
+                <p className="candidate-feedback-description">
+                  선택한 피드백은 후보 정리와 추천 개선에 사용돼요.
+                </p>
+                <div className="candidate-feedback-options">
+                  {feedbackOptions.map((option) => (
+                    <button
+                      className={candidate.feedback === option.value ? 'is-selected' : ''}
+                      type="button"
+                      key={option.value}
+                      aria-pressed={candidate.feedback === option.value}
+                      disabled={feedbackMutation.isPending}
+                      onClick={() => feedbackMutation.mutate(option.value)}
+                    >
+                      <span aria-hidden="true" />
+                      <strong>{option.label}</strong>
+                      <small>{option.description}</small>
+                    </button>
+                  ))}
+                </div>
+                {feedbackMutation.isPending && (
+                  <p className="candidate-feedback-message" role="status">
+                    피드백을 저장하고 있어요...
+                  </p>
+                )}
+                {feedbackMutation.isError && (
+                  <p className="candidate-feedback-message is-error" role="alert">
+                    피드백을 저장하지 못했어요. 다시 선택해 주세요.
+                  </p>
+                )}
+                {feedbackMutation.isSuccess && (
+                  <p className="candidate-feedback-message" role="status">
+                    피드백을 저장했어요.
+                  </p>
+                )}
               </DetailSection>
 
               <a

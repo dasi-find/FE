@@ -1,18 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { httpClient } from '../../../api/httpClient'
-import { getCandidateDetail, getCandidates, markCandidateViewed } from './candidateApi'
+import {
+  getCandidateDetail,
+  getCandidates,
+  markCandidateViewed,
+  submitCandidateFeedback,
+} from './candidateApi'
 
 vi.mock('../../../api/httpClient', () => ({
-  httpClient: { get: vi.fn(), post: vi.fn() },
+  httpClient: { get: vi.fn(), patch: vi.fn(), post: vi.fn() },
 }))
 
 const mockedGet = vi.mocked(httpClient.get)
+const mockedPatch = vi.mocked(httpClient.patch)
 const mockedPost = vi.mocked(httpClient.post)
 
 describe('candidateApi', () => {
   beforeEach(() => {
     mockedGet.mockReset()
+    mockedPatch.mockReset()
     mockedPost.mockReset()
   })
 
@@ -70,6 +77,24 @@ describe('candidateApi', () => {
     await expect(markCandidateViewed(301)).resolves.toEqual(viewed)
     expect(mockedGet).toHaveBeenCalledWith('/v1/candidates/301')
     expect(mockedPost).toHaveBeenCalledWith('/v1/candidates/301/view', {})
+  })
+
+  it('후보 피드백을 저장한다', async () => {
+    const result = {
+      candidateId: 301,
+      feedback: 'NOT_MINE' as const,
+      isExcluded: true,
+      updatedAt: '2026-09-01T10:00:00',
+    }
+    mockedPatch.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result },
+    })
+
+    await expect(submitCandidateFeedback(301, 'NOT_MINE')).resolves.toEqual(result)
+
+    expect(mockedPatch).toHaveBeenCalledWith('/v1/candidates/301/feedback', {
+      feedback: 'NOT_MINE',
+    })
   })
 })
 
