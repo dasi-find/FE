@@ -10,13 +10,7 @@ export function LandingPage() {
         </header>
 
         <div className="landing-hero">
-          <div className="landing-symbol" aria-hidden="true">
-            <span className="landing-radar radar-one" />
-            <span className="landing-radar radar-two" />
-            <span className="landing-object">▰</span>
-            <span className="landing-match">82</span>
-          </div>
-          <p className="landing-eyebrow">AI LOST &amp; FOUND</p>
+          <p className="landing-eyebrow">잃어버린 물건을 다시 만나는 방법</p>
           <h1>
             찾는 건 AI가.
             <br />
@@ -25,6 +19,21 @@ export function LandingPage() {
           <p className="landing-description">
             잃어버린 물건의 특징을 한 번 등록하면 새롭게 접수되는 경찰 습득물과 계속 비교해 드려요.
           </p>
+
+          <ol className="landing-steps" aria-label="이용 방법">
+            <li>
+              <b>1</b>
+              <span>잃어버린 물건 등록</span>
+            </li>
+            <li>
+              <b>2</b>
+              <span>경찰 습득물과 비교</span>
+            </li>
+            <li>
+              <b>3</b>
+              <span>가능성 높은 후보 확인</span>
+            </li>
+          </ol>
         </div>
 
         <footer className="landing-actions">
@@ -35,7 +44,7 @@ export function LandingPage() {
             이메일로 회원가입
           </Link>
           <p className="landing-notice">
-            후보 적합도는 확인 가치를 나타내는 참고 점수이며, 소유권을 확정하지 않습니다.
+            경찰청 습득물 정보를 바탕으로 확인할 후보를 정리해 드려요.
           </p>
         </footer>
       </section>

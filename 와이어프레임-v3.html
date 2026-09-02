@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>다시찾음 · 모바일 와이어프레임 v3</title>
+    <style>
+      :root {
+        color: #111;
+        background: #ededf0;
+        font-family:
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        font-synthesis: none;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+      }
+      button {
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+      .stage {
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 34px;
+      }
+      .phone {
+        position: relative;
+        width: min(100%, 430px);
+        height: min(880px, calc(100vh - 68px));
+        min-height: 680px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        border-radius: 38px;
+        background: #fff;
+        box-shadow: 0 24px 70px #0002;
+      }
+      .screen {
+        display: none;
+        height: 100%;
+        overflow-y: auto;
+        padding: 30px 24px 106px;
+      }
+      .screen.on {
+        display: block;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 850;
+      }
+      .logo {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border: 2.5px solid #111;
+        border-radius: 50%;
+      }
+      .logo::after {
+        position: absolute;
+        right: -9px;
+        bottom: -5px;
+        width: 13px;
+        height: 5px;
+        border-radius: 4px;
+        background: #111;
+        content: '';
+        rotate: 45deg;
+      }
+      .logo i,
+      .logo b {
+        position: absolute;
+        top: 8px;
+        width: 7px;
+        height: 12px;
+        border-radius: 2px;
+      }
+      .logo i {
+        left: 5px;
+        background: #111;
+      }
+      .logo b {
+        right: 5px;
+        border: 1.5px solid #111;
+      }
+      .logo span {
+        position: absolute;
+        top: 12px;
+        left: 13px;
+        width: 5px;
+        height: 1.5px;
+        background: #111;
+      }
+      .eyebrow {
+        margin-bottom: 10px;
+        color: #666;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.05em;
+      }
+      h1 {
+        font-size: 44px;
+        line-height: 1.04;
+        letter-spacing: -0.07em;
+      }
+      h2 {
+        font-size: 30px;
+        line-height: 1.1;
+        letter-spacing: -0.055em;
+      }
+      h3 {
+        font-size: 15px;
+      }
+      .lead {
+        color: #6d6d72;
+        font-size: 14px;
+        line-height: 1.65;
+        word-break: keep-all;
+      }
+      .landing {
+        display: none;
+        flex-direction: column;
+        padding-bottom: 30px;
+      }
+      .landing.on {
+        display: flex;
+      }
+      .landing-copy {
+        padding-top: clamp(42px, 7vh, 68px);
+      }
+      .steps {
+        margin: 30px 0 0;
+        padding: 0;
+        border-top: 1px solid #e2e2e4;
+        list-style: none;
+      }
+      .steps li {
+        display: grid;
+        grid-template-columns: 26px 1fr;
+        align-items: center;
+        gap: 10px;
+        min-height: 49px;
+        border-bottom: 1px solid #e2e2e4;
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .steps b {
+        display: grid;
+        width: 22px;
+        height: 22px;
+        place-items: center;
+        border-radius: 50%;
+        color: #fff;
+        background: #111;
+        font-size: 10px;
+      }
+      .actions {
+        display: grid;
+        gap: 8px;
+        margin-top: 36px;
+      }
+      .btn {
+        min-height: 52px;
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 800;
+      }
+      .btn.dark {
+        border-color: #111;
+        color: #fff;
+        background: #111;
+      }
+      .notice {
+        margin: 7px 8px 0;
+        color: #888;
+        font-size: 10px;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+      }
+      .header > strong {
+        font-size: 14px;
+      }
+      .header .text-btn {
+        min-height: 36px;
+        padding: 0 12px;
+        border: 1px solid #ddd;
+        border-radius: 18px;
+        background: #fff;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .avatar-btn {
+        position: relative;
+        display: grid;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        place-items: center;
+        border-color: #111 !important;
+        border-radius: 50% !important;
+        color: #fff;
+        background: #111 !important;
+        line-height: 0;
+      }
+      .avatar-btn svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: block;
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+        transform: translate(-50%, -50%);
+      }
+      .intro small {
+        display: block;
+        margin-bottom: 6px;
+        color: #777;
+        font-size: 12px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 24px 0 28px;
+      }
+      .stat {
+        min-height: 98px;
+        padding: 13px 11px;
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        background: #fafafa;
+        text-align: left;
+      }
+      .stat span {
+        display: block;
+        color: #777;
+        font-size: 10px;
+      }
+      .stat strong {
+        display: block;
+        margin: 17px 0 2px;
+        font-size: 25px;
+      }
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 27px 0 11px;
+      }
+      .section-title h3 {
+        margin: 0;
+      }
+      .section-title button {
+        border: 0;
+        color: #666;
+        background: transparent;
+        font-size: 11px;
+      }
+      .card {
+        position: relative;
+        padding: 16px;
+        border: 1px solid #dfdfe1;
+        border-radius: 17px;
+        background: #fafafa;
+      }
+      .card + .card {
+        margin-top: 9px;
+      }
+      .card button {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        border: 0;
+        border-radius: inherit;
+        background: transparent;
+      }
+      .badge {
+        display: inline-flex;
+        padding: 5px 8px;
+        border: 1px solid #d5d5d7;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 9px;
+        font-weight: 850;
+      }
+      .card h3 {
+        margin: 12px 0 5px;
+      }
+      .card p {
+        margin: 0;
+        color: #777;
+        font-size: 11px;
+      }
+      .candidate {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        align-items: center;
+        gap: 12px;
+      }
+      .thumb {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border-radius: 12px;
+        color: #fff;
+        background: #111;
+        font-size: 20px;
+      }
+      .candidate h3 {
+        margin: 0 0 5px;
+      }
+      .candidate strong:last-of-type {
+        font-size: 20px;
+      }
+      .featured {
+        padding: 20px;
+        color: #fff;
+        background: #111;
+      }
+      .featured .badge {
+        border-color: #555;
+        color: #ddd;
+        background: #222;
+      }
+      .featured p {
+        color: #aaa;
+      }
+      .featured-foot {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin-top: 22px;
+      }
+      .featured-foot strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 21px;
+      }
+      .featured-foot span {
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .filter {
+        display: flex;
+        gap: 7px;
+        margin: 23px 0 18px;
+        overflow-x: auto;
+      }
+      .filter button {
+        flex: none;
+        min-height: 34px;
+        padding: 0 13px;
+        border: 1px solid #ddd;
+        border-radius: 17px;
+        background: #fff;
+        font-size: 11px;
+        font-weight: 750;
+      }
+      .filter button.on {
+        border-color: #111;
+        color: #fff;
+        background: #111;
+      }
+      .search-card {
+        display: grid;
+        grid-template-columns: 58px 1fr auto;
+        align-items: center;
+        gap: 11px;
+      }
+      .search-card .thumb {
+        width: 58px;
+        height: 66px;
+        color: #444;
+        background: #e9e9eb;
+      }
+      .search-card .new {
+        position: absolute;
+        top: 8px;
+        left: 57px;
+        display: grid;
+        min-width: 21px;
+        height: 21px;
+        place-items: center;
+        border: 2px solid #fff;
+        border-radius: 11px;
+        color: #fff;
+        background: #111;
+        font-size: 9px;
+      }
+      .rank {
+        display: grid;
+        grid-template-columns: 25px 54px 1fr auto;
+        align-items: center;
+        gap: 10px;
+      }
+      .rank > b:first-child {
+        font-size: 12px;
+      }
+      .rank .thumb {
+        width: 54px;
+        height: 60px;
+        color: #444;
+        background: #e9e9eb;
+      }
+      .settings-group {
+        margin-top: 30px;
+      }
+      .settings-group > h3 {
+        color: #666;
+        font-size: 11px;
+      }
+      .settings-list {
+        overflow: hidden;
+        border: 1px solid #ddd;
+        border-radius: 16px;
+      }
+      .settings-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        align-items: center;
+        gap: 11px;
+        min-height: 72px;
+        padding: 12px 15px;
+      }
+      .settings-item + .settings-item {
+        border-top: 1px solid #e5e5e7;
+      }
+      .settings-item > span:first-child {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: 50%;
+        color: #fff;
+        background: #111;
+        font-size: 10px;
+        font-weight: 850;
+      }
+      .settings-item strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+      .settings-item small {
+        color: #777;
+        font-size: 10px;
+      }
+      .settings-item button {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        border: 0;
+        background: transparent;
+      }
+      .profile-form {
+        display: grid;
+        gap: 17px;
+        margin-top: 28px;
+      }
+      .field {
+        display: grid;
+        gap: 7px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .input {
+        width: 100%;
+        height: 50px;
+        padding: 0 14px;
+        border: 1px solid #ddd;
+        border-radius: 13px;
+        background: #fafafa;
+        font: inherit;
+      }
+      .toggle-row {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px;
+        border: 1px solid #ddd;
+        border-radius: 14px;
+      }
+      .toggle-row span {
+        display: grid;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .toggle-row small {
+        color: #777;
+        font-size: 10px;
+        font-weight: 500;
+      }
+      .switch {
+        width: 44px;
+        height: 25px;
+        padding: 3px;
+        border: 0;
+        border-radius: 13px;
+        background: #111;
+      }
+      .switch::before {
+        display: block;
+        width: 19px;
+        height: 19px;
+        margin-left: auto;
+        border-radius: 50%;
+        background: #fff;
+        content: '';
+      }
+      .bottom {
+        position: absolute;
+        z-index: 5;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 9px 14px 13px;
+        border-top: 1px solid #e5e5e7;
+        background: #fffc;
+        backdrop-filter: blur(15px);
+      }
+      .bottom.on {
+        display: grid;
+      }
+      .bottom button {
+        min-height: 49px;
+        border: 0;
+        border-radius: 12px;
+        color: #999;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 750;
+      }
+      .bottom button.active {
+        color: #111;
+        background: #f2f2f3;
+      }
+      .bottom span {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 16px;
+      }
+      .bottom svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+        margin: 0 auto 3px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+      }
+      .guide {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        color: #666;
+        font-size: 11px;
+        translate: -50%;
+      }
+      @media (max-width: 520px) {
+        :root {
+          background: #fff;
+        }
+        .stage {
+          display: block;
+          padding: 0;
+        }
+        .phone {
+          width: 100%;
+          height: 100svh;
+          min-height: 0;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        .screen {
+          padding-top: max(27px, env(safe-area-inset-top));
+        }
+        .guide {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <span class="guide">버튼을 눌러 화면 흐름을 확인할 수 있어요</span>
+    <main class="stage">
+      <div class="phone">
+        <section class="screen landing on" data-screen="landing">
+          <div class="brand">
+            <span class="logo"><i></i><b></b><span></span></span>다시찾음
+          </div>
+          <div class="landing-copy">
+            <p class="eyebrow">잃어버린 물건을 다시 만나는 방법</p>
+            <h1>찾는 건 AI가.<br />확인은 당신이.</h1>
+            <p class="lead">
+              잃어버린 물건의 특징을 한 번 등록하면 새롭게 접수되는 경찰 습득물과 계속 비교해
+              드려요.
+            </p>
+            <ol class="steps">
+              <li><b>1</b>잃어버린 물건 등록</li>
+              <li><b>2</b>경찰 습득물과 비교</li>
+              <li><b>3</b>가능성 높은 후보 확인</li>
+            </ol>
+          </div>
+          <div class="actions">
+            <button class="btn dark" data-go="home">시작하기</button
+            ><button class="btn">이메일로 회원가입</button>
+            <p class="notice">경찰청 습득물 정보를 바탕으로 확인할 후보를 정리해 드려요.</p>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="home">
+          <header class="header">
+            <div class="brand">
+              <span class="logo"><i></i><b></b><span></span></span>다시찾음
+            </div>
+            <button class="text-btn avatar-btn" data-go="profile" aria-label="마이페이지">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.25" />
+                <path d="M6 19.25c.45-3.2 2.65-5.05 6-5.05s5.55 1.85 6 5.05H6Z" />
+              </svg>
+            </button>
+          </header>
+          <div class="intro">
+            <small>안녕하세요, 민준님</small>
+            <h2>확인할 소식부터 볼게요.</h2>
+          </div>
+          <div class="section-title"><h3>먼저 확인해 보세요</h3></div>
+          <article class="card featured">
+            <span class="badge">새 후보</span>
+            <h3>남색 가죽 카드지갑</h3>
+            <p>분당경찰서에서 보관 중이에요.</p>
+            <div class="featured-foot">
+              <div><small>적합도</small><strong>82점</strong></div>
+              <span>후보 확인하기 ›</span>
+            </div>
+            <button data-go="candidates" aria-label="후보 보기"></button>
+          </article>
+          <div class="section-title">
+            <h3>진행 중인 수색</h3>
+            <button data-go="search">전체보기</button>
+          </div>
+          <article class="card">
+            <span class="badge">수색 중 · D-21</span>
+            <h3>남색 카드지갑</h3>
+            <p>8월 17일 · 판교역 인근 · 최고 82점</p>
+            <button data-go="candidates" aria-label="남색 카드지갑 후보 보기"></button>
+          </article>
+        </section>
+
+        <section class="screen" data-screen="search">
+          <header class="header">
+            <strong>내 수색</strong><button class="text-btn">＋ 새 수색</button>
+          </header>
+          <p class="eyebrow">SEARCH ARCHIVE</p>
+          <h2>내 수색카드</h2>
+          <p class="lead">카드를 누르면 해당 수색의 후보를 바로 확인해요.</p>
+          <div class="filter">
+            <button class="on">전체</button><button>수색 중</button><button>찾음</button
+            ><button>종료</button>
+          </div>
+          <article class="card search-card">
+            <div class="thumb">▰</div>
+            <span class="new">2</span>
+            <div>
+              <span class="badge">수색 중</span>
+              <h3>남색 카드지갑</h3>
+              <p>8월 17일 · 판교역 인근</p>
+            </div>
+            <strong>82점</strong><button data-go="candidates" aria-label="후보 목록 보기"></button>
+          </article>
+          <article class="card search-card">
+            <div class="thumb">▱</div>
+            <div>
+              <span class="badge">수색 중</span>
+              <h3>흰색 무선 이어폰</h3>
+              <p>8월 21일 · 강남역</p>
+            </div>
+            <strong>64점</strong><button data-go="candidates" aria-label="후보 목록 보기"></button>
+          </article>
+        </section>
+
+        <section class="screen" data-screen="candidates">
+          <header class="header">
+            <button class="text-btn" data-go="search">‹ 수색</button><strong>남색 카드지갑</strong
+            ><span></span>
+          </header>
+          <p class="eyebrow">CANDIDATES</p>
+          <h2>가능성 높은 순서로<br />확인해 보세요.</h2>
+          <p class="lead">점수는 확인할 우선순위를 돕는 참고 값이에요.</p>
+          <div class="section-title">
+            <h3>후보 3건</h3>
+            <span class="badge">점수 높은 순</span>
+          </div>
+          <article class="card rank">
+            <b>1</b>
+            <div class="thumb">▰</div>
+            <div>
+              <span class="badge">NEW</span>
+              <h3>남색 가죽 카드지갑</h3>
+              <p>분당경찰서 · 8월 18일</p>
+            </div>
+            <strong>82</strong>
+          </article>
+          <article class="card rank">
+            <b>2</b>
+            <div class="thumb">▱</div>
+            <div>
+              <h3>검정 카드 케이스</h3>
+              <p>판교역 · 8월 19일</p>
+            </div>
+            <strong>74</strong>
+          </article>
+          <article class="card rank">
+            <b>3</b>
+            <div class="thumb">▰</div>
+            <div>
+              <h3>네이비 반지갑</h3>
+              <p>야탑지구대 · 8월 20일</p>
+            </div>
+            <strong>68</strong>
+          </article>
+        </section>
+
+        <section class="screen" data-screen="notifications">
+          <header class="header"><strong>알림</strong><span class="badge">안 읽음 2</span></header>
+          <p class="eyebrow">NOTIFICATIONS</p>
+          <h2>새로운 소식을<br />확인해 보세요.</h2>
+          <div class="filter"><button class="on">전체</button><button>안 읽음</button></div>
+          <article class="card candidate">
+            <div class="thumb">!</div>
+            <div>
+              <span class="badge">새 후보</span>
+              <h3>새로운 후보가 있어요.</h3>
+              <p>남색 카드지갑과 비슷한 습득물이 등록됐어요.</p>
+            </div>
+            <strong>›</strong><button data-go="candidates" aria-label="후보 알림 확인"></button>
+          </article>
+          <article class="card candidate">
+            <div class="thumb">⌛</div>
+            <div>
+              <span class="badge">수색</span>
+              <h3>수색 만료가 가까워요.</h3>
+              <p>7일 후 수색이 종료돼요.</p>
+            </div>
+            <strong>›</strong>
+          </article>
+        </section>
+
+        <section class="screen" data-screen="profile">
+          <header class="header">
+            <button class="text-btn" data-go="home">‹ 홈</button><strong>마이페이지</strong
+            ><span></span>
+          </header>
+          <p class="eyebrow">ACCOUNT</p>
+          <h2>내 정보와 알림을<br />관리해요.</h2>
+          <div class="profile-form">
+            <label class="field"
+              >이메일<input class="input" value="hello@dasifind.kr" readonly
+            /></label>
+            <label class="field">표시명<input class="input" value="민준" /></label>
+            <div class="toggle-row">
+              <span>이메일 알림<small>새 후보와 수색 만료 소식을 받아요.</small></span
+              ><button class="switch" aria-label="이메일 알림 켜짐"></button>
+            </div>
+            <button class="btn dark">변경사항 저장</button><button class="btn">로그아웃</button>
+          </div>
+        </section>
+
+        <nav class="bottom" aria-label="하단 메뉴">
+          <button data-tab="home"><span>⌂</span>홈</button
+          ><button data-tab="search"><span>⌕</span>수색</button
+          ><button data-tab="notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6.5 10.5c0-3.4 2.1-5.8 5.5-5.8s5.5 2.4 5.5 5.8v3.1l1.4 2.4H5.1l1.4-2.4v-3.1Z"
+              />
+              <path d="M9.8 18.2c.5.8 1.2 1.2 2.2 1.2s1.7-.4 2.2-1.2" /></svg
+            >알림
+          </button>
+        </nav>
+      </div>
+    </main>
+    <script>
+      const screens = [...document.querySelectorAll('[data-screen]')]
+      const bottom = document.querySelector('.bottom')
+      function show(name) {
+        screens.forEach((screen) => screen.classList.toggle('on', screen.dataset.screen === name))
+        const isApp = ['home', 'search', 'notifications'].includes(name)
+        bottom.classList.toggle('on', isApp)
+        bottom
+          .querySelectorAll('button')
+          .forEach((button) =>
+            button.classList.toggle('active', isApp && button.dataset.tab === name),
+          )
+      }
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-go], [data-tab]')
+        if (target) show(target.dataset.go || target.dataset.tab)
+        const filter = event.target.closest('.filter button')
+        if (filter) {
+          filter.parentElement
+            .querySelectorAll('button')
+            .forEach((button) => button.classList.remove('on'))
+          filter.classList.add('on')
+        }
+      })
+    </script>
+  </body>
+</html>
