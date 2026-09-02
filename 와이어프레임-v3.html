@@ -215,6 +215,24 @@
         font-size: 11px;
         font-weight: 800;
       }
+      .avatar-btn {
+        display: grid;
+        width: 38px;
+        padding: 0;
+        place-items: center;
+        border-color: #111 !important;
+        color: #fff;
+        background: #111 !important;
+      }
+      .avatar-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+      }
       .intro small {
         display: block;
         margin-bottom: 6px;
@@ -615,7 +633,12 @@
             <div class="brand">
               <span class="logo"><i></i><b></b><span></span></span>다시찾음
             </div>
-            <button class="text-btn" data-go="profile" aria-label="마이페이지">민</button>
+            <button class="text-btn avatar-btn" data-go="profile" aria-label="마이페이지">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M5.5 19c.7-3.6 3-5.5 6.5-5.5s5.8 1.9 6.5 5.5" />
+              </svg>
+            </button>
           </header>
           <div class="intro">
             <small>안녕하세요, 민준님</small>

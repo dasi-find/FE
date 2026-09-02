@@ -24,7 +24,10 @@ export function HomePage() {
           </Link>
           <div className="home-header-actions">
             <Link className="home-profile" to="/profile" aria-label="마이페이지">
-              {currentUser?.name.trim().charAt(0) || '나'}
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M5.5 19c.7-3.6 3-5.5 6.5-5.5s5.8 1.9 6.5 5.5" />
+              </svg>
             </Link>
           </div>
         </header>

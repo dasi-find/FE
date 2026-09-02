@@ -778,6 +778,16 @@ small {
   text-decoration: none;
 }
 
+.home-profile svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .home-content {
   flex: 1;
   overflow-y: auto;
