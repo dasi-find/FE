@@ -216,6 +216,7 @@
         font-weight: 800;
       }
       .avatar-btn {
+        position: relative;
         display: grid;
         width: 38px;
         height: 38px;
@@ -228,10 +229,14 @@
         line-height: 0;
       }
       .avatar-btn svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
         display: block;
         width: 18px;
         height: 18px;
         fill: currentColor;
+        transform: translate(-50%, -50%);
       }
       .intro small {
         display: block;
