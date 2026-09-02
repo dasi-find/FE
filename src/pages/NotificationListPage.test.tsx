@@ -1,18 +1,32 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getNotifications } from '../features/notification/api/notificationApi'
+import {
+  getNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from '../features/notification/api/notificationApi'
 import { NotificationListPage } from './NotificationListPage'
 
-vi.mock('../features/notification/api/notificationApi', () => ({ getNotifications: vi.fn() }))
+vi.mock('../features/notification/api/notificationApi', () => ({
+  getNotifications: vi.fn(),
+  markAllNotificationsRead: vi.fn(),
+  markNotificationRead: vi.fn(),
+}))
 
 const mockedGetNotifications = vi.mocked(getNotifications)
+const mockedMarkAllNotificationsRead = vi.mocked(markAllNotificationsRead)
+const mockedMarkNotificationRead = vi.mocked(markNotificationRead)
 
 describe('NotificationListPage', () => {
-  beforeEach(() => mockedGetNotifications.mockReset())
+  beforeEach(() => {
+    mockedGetNotifications.mockReset()
+    mockedMarkAllNotificationsRead.mockReset()
+    mockedMarkNotificationRead.mockReset()
+  })
 
   it('알림과 안 읽은 개수를 표시하고 관련 화면으로 연결한다', async () => {
     mockedGetNotifications.mockImplementation(async (request) =>
@@ -68,6 +82,66 @@ describe('NotificationListPage', () => {
 
     expect(await screen.findByText('새로운 후보가 있어요.')).toBeInTheDocument()
   })
+
+  it('안 읽은 알림을 읽음 처리한 뒤 관련 후보로 이동한다', async () => {
+    const user = userEvent.setup()
+    mockedGetNotifications.mockImplementation(async (request) =>
+      request?.size === 1 ? unreadCountPage(1) : populatedPage(),
+    )
+    mockedMarkNotificationRead.mockResolvedValue({
+      notificationId: 7,
+      isRead: true,
+      readAt: '2026-09-02T10:00:00',
+    })
+    renderPage()
+
+    await user.click(await screen.findByRole('link', { name: /새로운 후보가 있어요/ }))
+
+    expect(mockedMarkNotificationRead).toHaveBeenCalledWith(7)
+    expect(await screen.findByText('후보 상세 화면')).toBeInTheDocument()
+  })
+
+  it('개별 읽음 처리 실패 후 알림을 다시 눌러 재시도할 수 있다', async () => {
+    const user = userEvent.setup()
+    mockedGetNotifications.mockImplementation(async (request) =>
+      request?.size === 1 ? unreadCountPage(1) : populatedPage(),
+    )
+    mockedMarkNotificationRead.mockRejectedValueOnce(new Error('읽음 실패')).mockResolvedValueOnce({
+      notificationId: 7,
+      isRead: true,
+      readAt: '2026-09-02T10:00:00',
+    })
+    renderPage()
+
+    const notificationLink = await screen.findByRole('link', { name: /새로운 후보가 있어요/ })
+    await user.click(notificationLink)
+    expect(await screen.findByRole('alert')).toHaveTextContent('읽음 처리에 실패했어요.')
+
+    await user.click(notificationLink)
+    expect(await screen.findByText('후보 상세 화면')).toBeInTheDocument()
+    expect(mockedMarkNotificationRead).toHaveBeenCalledTimes(2)
+  })
+
+  it('전체 알림을 읽음 처리하고 배지를 갱신한다', async () => {
+    const user = userEvent.setup()
+    let hasUnread = true
+    mockedGetNotifications.mockImplementation(async (request) => {
+      if (request?.size === 1) return unreadCountPage(hasUnread ? 3 : 0)
+      return hasUnread ? populatedPage() : { ...populatedPage(), content: [] }
+    })
+    mockedMarkAllNotificationsRead.mockImplementation(async () => {
+      hasUnread = false
+      return { readCount: 3, readAt: '2026-09-02T10:00:00' }
+    })
+    renderPage()
+
+    await screen.findByText('새로운 후보가 있어요.')
+    await user.click(screen.getByRole('button', { name: '모두 읽음' }))
+
+    expect(await screen.findByText('알림 3개를 읽음 처리했어요.')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByLabelText('안 읽은 알림 0개')).toHaveTextContent('0'))
+    expect(mockedMarkAllNotificationsRead).toHaveBeenCalledTimes(1)
+  })
 })
 
 function renderPage() {
@@ -76,8 +150,11 @@ function renderPage() {
   })
   render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <NotificationListPage />
+      <MemoryRouter initialEntries={['/notifications']}>
+        <Routes>
+          <Route path="/notifications" element={<NotificationListPage />} />
+          <Route path="/candidates/:candidateId" element={<p>후보 상세 화면</p>} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
   )
