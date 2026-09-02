@@ -7,6 +7,7 @@ import { HomePage } from '../../pages/HomePage'
 import { LandingPage } from '../../pages/LandingPage'
 import { LoginPage } from '../../pages/LoginPage'
 import { NewSearchCardPage } from '../../pages/NewSearchCardPage'
+import { NotificationListPage } from '../../pages/NotificationListPage'
 import { NotFoundPage } from '../../pages/NotFoundPage'
 import { ProfilePage } from '../../pages/ProfilePage'
 import { SignupPage } from '../../pages/SignupPage'
@@ -31,6 +32,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/notifications',
+    element: (
+      <ProtectedRoute>
+        <NotificationListPage />
       </ProtectedRoute>
     ),
   },
