@@ -13,11 +13,13 @@ describe('LandingPage', () => {
     )
 
     expect(screen.getByRole('heading', { name: /찾는 건 AI가.*확인은 당신이/ })).toBeInTheDocument()
+    expect(screen.getByRole('list', { name: '이용 방법' })).toHaveTextContent('잃어버린 물건 등록')
+    expect(screen.getByText('경찰 습득물과 비교')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '시작하기' })).toHaveAttribute('href', '/login')
     expect(screen.getByRole('link', { name: '이메일로 회원가입' })).toHaveAttribute(
       'href',
       '/signup',
     )
-    expect(screen.getByText(/소유권을 확정하지 않습니다/)).toBeInTheDocument()
+    expect(screen.getByText(/경찰청 습득물 정보를 바탕으로/)).toBeInTheDocument()
   })
 })

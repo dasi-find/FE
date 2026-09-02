@@ -144,7 +144,7 @@ export function NotificationListPage() {
           )}
         </div>
 
-        <HomeBottomNavigation unreadNotificationCount={unreadCount} active="notifications" />
+        <HomeBottomNavigation />
       </section>
     </main>
   )

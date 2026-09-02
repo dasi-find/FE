@@ -19,7 +19,7 @@ export function ProfilePage() {
     <main className="profile-shell">
       <section className="profile-screen">
         <header className="profile-header">
-          <Link to="/home" aria-label="홈으로 돌아가기">
+          <Link to="/settings" aria-label="설정으로 돌아가기">
             ‹
           </Link>
           <strong>내 정보</strong>
@@ -122,7 +122,7 @@ function ProfileForm({ profile }: { profile: UserProfile }) {
         )}
       </label>
 
-      <label className="profile-toggle">
+      <label className="profile-toggle" id="notification-settings">
         <span>
           <strong>이메일 알림</strong>
           <small>새로운 후보와 수색 만료 소식을 받아요.</small>

@@ -4,17 +4,14 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { clearAccessToken, getAccessToken } from '../api/accessTokenStore'
-import { logout } from '../features/auth/api/authApi'
+import { clearAccessToken } from '../api/accessTokenStore'
 import { saveAuthSession } from '../features/auth/model/authSessionStore'
 import { getHomeSummary, type HomeSummary } from '../features/home/api/homeApi'
 import { HomePage } from './HomePage'
 
 vi.mock('../features/home/api/homeApi', () => ({ getHomeSummary: vi.fn() }))
-vi.mock('../features/auth/api/authApi', () => ({ logout: vi.fn() }))
 
 const mockedGetHomeSummary = vi.mocked(getHomeSummary)
-const mockedLogout = vi.mocked(logout)
 
 const populatedHome: HomeSummary = {
   activeSearchCards: [
@@ -45,7 +42,6 @@ describe('HomePage', () => {
   beforeEach(() => {
     clearAccessToken()
     mockedGetHomeSummary.mockReset()
-    mockedLogout.mockReset()
     saveAuthSession({
       user: { id: 7, email: 'hello@example.com', name: '민준' },
       accessToken: 'access-token',
@@ -58,19 +54,23 @@ describe('HomePage', () => {
     renderHome()
 
     expect(screen.getByText('안녕하세요, 민준님')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '오늘도 찾고 있어요.' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /새 수색 시작하기/ })).toHaveAttribute(
+    expect(screen.getByRole('heading', { name: '지금 수색 현황이에요.' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /새 수색 시작하기/ })).not.toBeInTheDocument()
+    expect((await screen.findByText('새 후보')).closest('a')).toHaveAttribute(
       'href',
-      '/search-cards/new',
+      '/candidates/301',
     )
-    expect(screen.getByRole('link', { name: '내 정보' })).toHaveAttribute('href', '/profile')
     expect((await screen.findByText('남색 카드지갑')).closest('a')).toHaveAttribute(
       'href',
       '/search-cards/12/candidates',
     )
     expect(screen.getByText('8월 17일 · 판교역 인근')).toBeInTheDocument()
     expect(screen.getByLabelText('새 후보 1개')).toHaveTextContent('!')
-    expect(screen.queryByText('검정색 반지갑')).not.toBeInTheDocument()
+    expect(screen.getByText('검정색 반지갑').closest('a')).toHaveAttribute(
+      'href',
+      '/candidates/301',
+    )
+    expect(screen.getByRole('link', { name: /설정/ })).toHaveAttribute('href', '/settings')
   })
 
   it('수색과 후보가 없을 때 다음 행동을 안내한다', async () => {
@@ -82,11 +82,8 @@ describe('HomePage', () => {
     renderHome()
 
     expect(await screen.findByText('진행 중인 수색이 없어요.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: '첫 수색 시작하기' })).toHaveAttribute(
-      'href',
-      '/search-cards/new',
-    )
-    expect(screen.queryByText('새 후보를 계속 찾고 있어요.')).not.toBeInTheDocument()
+    expect(screen.getByText(/수색 탭에서 잃어버린 물건을 등록/)).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /수색 시작/ })).not.toBeInTheDocument()
   })
 
   it('조회 실패 후 다시 시도할 수 있다', async () => {
@@ -102,32 +99,6 @@ describe('HomePage', () => {
     expect(await screen.findByText('남색 카드지갑')).toBeInTheDocument()
     expect(mockedGetHomeSummary).toHaveBeenCalledTimes(2)
   })
-
-  it('로그아웃 성공 시 세션을 제거하고 로그인 화면으로 이동한다', async () => {
-    const user = userEvent.setup()
-    mockedGetHomeSummary.mockResolvedValue(populatedHome)
-    mockedLogout.mockResolvedValue(null)
-    renderHome()
-
-    await user.click(screen.getByRole('button', { name: '로그아웃' }))
-
-    expect(await screen.findByText('로그인 화면')).toBeInTheDocument()
-    expect(mockedLogout).toHaveBeenCalledOnce()
-    expect(getAccessToken()).toBeNull()
-  })
-
-  it('로그아웃 실패 시 세션을 유지하고 다시 시도할 수 있다', async () => {
-    const user = userEvent.setup()
-    mockedGetHomeSummary.mockResolvedValue(populatedHome)
-    mockedLogout.mockRejectedValue(new Error('서버 오류'))
-    renderHome()
-
-    await user.click(screen.getByRole('button', { name: '로그아웃' }))
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('로그아웃하지 못했어요.')
-    expect(getAccessToken()).toBe('access-token')
-    expect(screen.getByRole('button', { name: '로그아웃' })).toBeEnabled()
-  })
 })
 
 function renderHome() {
@@ -140,7 +111,6 @@ function renderHome() {
       <MemoryRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<p>로그인 화면</p>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,

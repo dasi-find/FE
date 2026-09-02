@@ -45,7 +45,7 @@ describe('SearchCardListPage', () => {
     expect(screen.getByText('82점')).toBeInTheDocument()
     expect(screen.getByText('남색 카드지갑').closest('a')).toHaveAttribute(
       'href',
-      '/search-cards/12',
+      '/search-cards/12/candidates',
     )
     expect(screen.getByRole('link', { name: '새 수색 추가' })).toHaveAttribute(
       'href',
