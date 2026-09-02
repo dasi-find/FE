@@ -572,6 +572,17 @@
         margin-bottom: 3px;
         font-size: 16px;
       }
+      .bottom svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+        margin: 0 auto 3px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+      }
       .guide {
         position: fixed;
         top: 16px;
@@ -794,7 +805,14 @@
         <nav class="bottom" aria-label="하단 메뉴">
           <button data-tab="home"><span>⌂</span>홈</button
           ><button data-tab="search"><span>⌕</span>수색</button
-          ><button data-tab="notifications"><span>●</span>알림</button>
+          ><button data-tab="notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6.5 10.5c0-3.4 2.1-5.8 5.5-5.8s5.5 2.4 5.5 5.8v3.1l1.4 2.4H5.1l1.4-2.4v-3.1Z"
+              />
+              <path d="M9.8 18.2c.5.8 1.2 1.2 2.2 1.2s1.7-.4 2.2-1.2" /></svg
+            >알림
+          </button>
         </nav>
       </div>
     </main>

@@ -1223,10 +1223,21 @@ small {
   position: relative;
 }
 
+.home-nav-icon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .home-nav-icon b {
   position: absolute;
-  top: -8px;
-  left: 8px;
+  top: -7px;
+  left: 12px;
   min-width: 16px;
   padding: 2px 4px;
   border: 2px solid #ffffff;
