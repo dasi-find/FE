@@ -16,6 +16,17 @@ export type NotificationSummary = {
 
 export type NotificationListFilter = 'ALL' | 'UNREAD'
 
+export type NotificationReadResult = {
+  notificationId: number
+  isRead: true
+  readAt: string
+}
+
+export type NotificationReadAllResult = {
+  readCount: number
+  readAt: string
+}
+
 export async function getNotifications({
   filter,
   page,
@@ -34,6 +45,22 @@ export async function getNotifications({
         size,
       },
     },
+  )
+  return data.result
+}
+
+export async function markNotificationRead(notificationId: number) {
+  const { data } = await httpClient.post<ApiResponse<NotificationReadResult>>(
+    `/v1/notifications/${notificationId}/read`,
+    {},
+  )
+  return data.result
+}
+
+export async function markAllNotificationsRead() {
+  const { data } = await httpClient.post<ApiResponse<NotificationReadAllResult>>(
+    '/v1/notifications/read-all',
+    {},
   )
   return data.result
 }

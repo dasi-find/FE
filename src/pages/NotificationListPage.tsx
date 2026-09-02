@@ -1,10 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { useState, type MouseEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { HomeBottomNavigation } from '../features/home/components/HomeBottomNavigation'
 import {
   getNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
   type NotificationListFilter,
   type NotificationSummary,
   type NotificationType,
@@ -16,6 +18,7 @@ const filterOptions: Array<{ value: NotificationListFilter; label: string }> = [
 ]
 
 export function NotificationListPage() {
+  const queryClient = useQueryClient()
   const [filter, setFilter] = useState<NotificationListFilter>('ALL')
   const [page, setPage] = useState(0)
   const notificationQuery = useQuery({
@@ -27,6 +30,10 @@ export function NotificationListPage() {
     queryFn: () => getNotifications({ filter: 'UNREAD', page: 0, size: 1 }),
   })
   const unreadCount = unreadCountQuery.data?.totalElements ?? 0
+  const readAllMutation = useMutation({
+    mutationFn: markAllNotificationsRead,
+    onSuccess: () => refreshNotificationQueries(queryClient),
+  })
 
   return (
     <main className="notification-shell">
@@ -51,22 +58,43 @@ export function NotificationListPage() {
             </h1>
           </div>
 
-          <div className="notification-filters" aria-label="알림 필터">
-            {filterOptions.map((option) => (
-              <button
-                className={filter === option.value ? 'is-selected' : ''}
-                type="button"
-                key={option.value}
-                aria-pressed={filter === option.value}
-                onClick={() => {
-                  setFilter(option.value)
-                  setPage(0)
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="notification-toolbar">
+            <div className="notification-filters" aria-label="알림 필터">
+              {filterOptions.map((option) => (
+                <button
+                  className={filter === option.value ? 'is-selected' : ''}
+                  type="button"
+                  key={option.value}
+                  aria-pressed={filter === option.value}
+                  onClick={() => {
+                    setFilter(option.value)
+                    setPage(0)
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <button
+              className="notification-read-all"
+              type="button"
+              disabled={unreadCount === 0 || readAllMutation.isPending}
+              onClick={() => readAllMutation.mutate()}
+            >
+              {readAllMutation.isPending ? '처리 중...' : '모두 읽음'}
+            </button>
           </div>
+
+          {readAllMutation.isError && (
+            <p className="notification-action-message is-error" role="alert">
+              전체 읽음 처리에 실패했어요. 다시 시도해 주세요.
+            </p>
+          )}
+          {readAllMutation.isSuccess && (
+            <p className="notification-action-message" role="status">
+              알림 {readAllMutation.data.readCount}개를 읽음 처리했어요.
+            </p>
+          )}
 
           {notificationQuery.isPending && <NotificationLoading />}
           {notificationQuery.isError && (
@@ -123,7 +151,16 @@ export function NotificationListPage() {
 }
 
 function NotificationItem({ notification }: { notification: NotificationSummary }) {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const target = getNotificationTarget(notification)
+  const readMutation = useMutation({
+    mutationFn: () => markNotificationRead(notification.notificationId),
+    onSuccess: () => {
+      void refreshNotificationQueries(queryClient)
+      if (target) navigate(target)
+    },
+  })
   const content = (
     <>
       <span className="notification-item-icon" aria-hidden="true">
@@ -139,14 +176,45 @@ function NotificationItem({ notification }: { notification: NotificationSummary 
     </>
   )
 
-  return target ? (
-    <Link className={`notification-item ${notification.isRead ? '' : 'is-unread'}`} to={target}>
-      {content}
-    </Link>
-  ) : (
-    <article className={`notification-item ${notification.isRead ? '' : 'is-unread'}`}>
-      {content}
-    </article>
+  const openUnreadNotification = (event?: MouseEvent<HTMLAnchorElement>) => {
+    if (readMutation.isPending) {
+      event?.preventDefault()
+      return
+    }
+    if (notification.isRead) return
+    event?.preventDefault()
+    readMutation.mutate()
+  }
+
+  return (
+    <div className="notification-item-wrapper">
+      {target ? (
+        <Link
+          className={`notification-item ${notification.isRead ? '' : 'is-unread'}`}
+          to={target}
+          aria-busy={readMutation.isPending}
+          onClick={openUnreadNotification}
+        >
+          {content}
+        </Link>
+      ) : notification.isRead ? (
+        <article className="notification-item">{content}</article>
+      ) : (
+        <button
+          className="notification-item is-unread"
+          type="button"
+          disabled={readMutation.isPending}
+          onClick={() => readMutation.mutate()}
+        >
+          {content}
+        </button>
+      )}
+      {readMutation.isError && (
+        <p className="notification-item-error" role="alert">
+          읽음 처리에 실패했어요. 알림을 다시 눌러 주세요.
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -220,4 +288,11 @@ function formatCreatedAt(value: string) {
     minute: '2-digit',
     hour12: false,
   }).format(date)
+}
+
+function refreshNotificationQueries(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
+  ])
 }
