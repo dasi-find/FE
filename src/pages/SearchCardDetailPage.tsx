@@ -6,6 +6,7 @@ import {
   closeSearchCard,
   deleteSearchCard,
   getSearchCard,
+  markSearchCardFound,
   type SearchCardDetail,
   type SearchCardStatus,
 } from '../features/searchCard/api/searchCardApi'
@@ -90,6 +91,7 @@ export function SearchCardDetailPage() {
 function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [isFoundDialogOpen, setIsFoundDialogOpen] = useState(false)
   const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const canDelete = ['FOUND', 'CLOSED', 'EXPIRED'].includes(searchCard.status)
@@ -104,6 +106,19 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
         queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
       ])
       setIsCloseDialogOpen(false)
+    },
+  })
+  const foundMutation = useMutation({
+    mutationFn: () => markSearchCardFound(searchCard.id),
+    onSuccess: async (foundSearchCard) => {
+      queryClient.setQueryData<SearchCardDetail>(['search-card', searchCard.id], (current) =>
+        current ? { ...current, status: foundSearchCard.status } : current,
+      )
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['search-cards'] }),
+        queryClient.invalidateQueries({ queryKey: ['home-summary'] }),
+      ])
+      setIsFoundDialogOpen(false)
     },
   })
   const deleteMutation = useMutation({
@@ -213,10 +228,19 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
       {searchCard.status === 'ACTIVE' && (
         <section className="search-card-detail-actions">
           <h2>수색 관리</h2>
-          <p>물건을 찾았거나 더 이상 후보 알림이 필요하지 않을 때 수색을 종료해 주세요.</p>
-          <button type="button" onClick={() => setIsCloseDialogOpen(true)}>
-            수색 종료
-          </button>
+          <p>물건을 찾았다면 찾음 완료로 기록하고, 그 외에는 수색만 종료할 수 있어요.</p>
+          <div className="search-card-status-actions">
+            <button
+              className="search-card-found-button"
+              type="button"
+              onClick={() => setIsFoundDialogOpen(true)}
+            >
+              물건을 찾았어요
+            </button>
+            <button type="button" onClick={() => setIsCloseDialogOpen(true)}>
+              수색 종료
+            </button>
+          </div>
         </section>
       )}
 
@@ -228,6 +252,45 @@ function SearchCardDetailContent({ searchCard }: { searchCard: SearchCardDetail 
             수색카드 삭제
           </button>
         </section>
+      )}
+
+      {isFoundDialogOpen && (
+        <div className="search-card-close-backdrop">
+          <div
+            className="search-card-close-dialog search-card-found-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="search-card-found-title"
+          >
+            <span aria-hidden="true">✓</span>
+            <h2 id="search-card-found-title">물건을 찾았나요?</h2>
+            <p>찾음 완료로 기록하면 새로운 후보 알림이 멈추고 수색 상태가 완료로 변경돼요.</p>
+            {foundMutation.isError && (
+              <p className="search-card-close-error" role="alert">
+                찾음 완료를 처리하지 못했어요. 다시 시도해 주세요.
+              </p>
+            )}
+            <div>
+              <button
+                type="button"
+                disabled={foundMutation.isPending}
+                onClick={() => foundMutation.mutate()}
+              >
+                {foundMutation.isPending ? '처리 중...' : '찾음 완료하기'}
+              </button>
+              <button
+                type="button"
+                disabled={foundMutation.isPending}
+                onClick={() => {
+                  foundMutation.reset()
+                  setIsFoundDialogOpen(false)
+                }}
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {isCloseDialogOpen && (

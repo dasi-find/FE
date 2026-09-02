@@ -9,6 +9,7 @@ import {
   getSearchCardAnalysis,
   getSearchCard,
   getSearchCards,
+  markSearchCardFound,
   requestSearchCardAnalysis,
   updateSearchCard,
   uploadSearchCardImage,
@@ -235,6 +236,21 @@ describe('searchCardApi', () => {
     await expect(closeSearchCard(12)).resolves.toEqual(closed)
 
     expect(mockedPatch).toHaveBeenCalledWith('/v1/search-cards/12/close')
+  })
+
+  it('수색카드 찾음 완료를 요청한다', async () => {
+    const found = {
+      searchCardId: 12,
+      status: 'FOUND' as const,
+      foundAt: '2026-09-02T10:20:00',
+    }
+    mockedPatch.mockResolvedValue({
+      data: { isSuccess: true, code: 'COMMON2001', message: '성공', result: found },
+    })
+
+    await expect(markSearchCardFound(12)).resolves.toEqual(found)
+
+    expect(mockedPatch).toHaveBeenCalledWith('/v1/search-cards/12/found')
   })
 
   it('수색카드 삭제를 요청한다', async () => {

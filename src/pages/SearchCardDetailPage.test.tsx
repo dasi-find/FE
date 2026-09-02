@@ -8,6 +8,7 @@ import {
   closeSearchCard,
   deleteSearchCard,
   getSearchCard,
+  markSearchCardFound,
   type SearchCardDetail,
 } from '../features/searchCard/api/searchCardApi'
 import { SearchCardDetailPage } from './SearchCardDetailPage'
@@ -16,11 +17,13 @@ vi.mock('../features/searchCard/api/searchCardApi', () => ({
   closeSearchCard: vi.fn(),
   deleteSearchCard: vi.fn(),
   getSearchCard: vi.fn(),
+  markSearchCardFound: vi.fn(),
 }))
 
 const mockedCloseSearchCard = vi.mocked(closeSearchCard)
 const mockedDeleteSearchCard = vi.mocked(deleteSearchCard)
 const mockedGetSearchCard = vi.mocked(getSearchCard)
+const mockedMarkSearchCardFound = vi.mocked(markSearchCardFound)
 
 const searchCard: SearchCardDetail = {
   id: 12,
@@ -63,6 +66,7 @@ describe('SearchCardDetailPage', () => {
     mockedCloseSearchCard.mockReset()
     mockedDeleteSearchCard.mockReset()
     mockedGetSearchCard.mockReset()
+    mockedMarkSearchCardFound.mockReset()
   })
 
   it('수색카드 상세 정보와 후보 목록 링크를 표시한다', async () => {
@@ -82,7 +86,47 @@ describe('SearchCardDetailPage', () => {
       '/search-cards/12/edit',
     )
     expect(screen.getByRole('button', { name: '수색 종료' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '물건을 찾았어요' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '수색카드 삭제' })).not.toBeInTheDocument()
+  })
+
+  it('확인 후 찾음 완료로 상태를 갱신한다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue(searchCard)
+    mockedMarkSearchCardFound.mockResolvedValue({
+      searchCardId: 12,
+      status: 'FOUND',
+      foundAt: '2026-09-02T10:20:00',
+    })
+    renderPage('/search-cards/12')
+
+    await user.click(await screen.findByRole('button', { name: '물건을 찾았어요' }))
+    expect(screen.getByRole('dialog', { name: '물건을 찾았나요?' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '찾음 완료하기' }))
+
+    expect(await screen.findByText('찾음')).toBeInTheDocument()
+    expect(mockedMarkSearchCardFound).toHaveBeenCalledWith(12)
+    expect(screen.queryByRole('button', { name: '물건을 찾았어요' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '수색카드 삭제' })).toBeInTheDocument()
+  })
+
+  it('찾음 완료 실패 후 다시 시도할 수 있다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue(searchCard)
+    mockedMarkSearchCardFound.mockRejectedValueOnce(new Error('처리 실패')).mockResolvedValueOnce({
+      searchCardId: 12,
+      status: 'FOUND',
+      foundAt: '2026-09-02T10:20:00',
+    })
+    renderPage('/search-cards/12')
+
+    await user.click(await screen.findByRole('button', { name: '물건을 찾았어요' }))
+    await user.click(screen.getByRole('button', { name: '찾음 완료하기' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('찾음 완료를 처리하지 못했어요.')
+
+    await user.click(screen.getByRole('button', { name: '찾음 완료하기' }))
+    expect(await screen.findByText('찾음')).toBeInTheDocument()
+    expect(mockedMarkSearchCardFound).toHaveBeenCalledTimes(2)
   })
 
   it('확인 후 수색을 종료하고 상세 상태를 갱신한다', async () => {
