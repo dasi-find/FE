@@ -3793,6 +3793,16 @@ button.notification-item:disabled {
   cursor: pointer;
 }
 
+.search-card-status-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.search-card-detail-actions button.search-card-found-button {
+  color: #ffffff;
+  background: #111111;
+}
+
 .search-card-close-backdrop {
   position: fixed;
   z-index: 100;
