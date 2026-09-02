@@ -775,17 +775,15 @@ small {
   background: #111111;
   font-size: 0.72rem;
   font-weight: 900;
+  line-height: 0;
   text-decoration: none;
 }
 
 .home-profile svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentcolor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: currentcolor;
 }
 
 .home-content {

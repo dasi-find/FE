@@ -218,20 +218,20 @@
       .avatar-btn {
         display: grid;
         width: 38px;
+        height: 38px;
         padding: 0;
         place-items: center;
         border-color: #111 !important;
+        border-radius: 50% !important;
         color: #fff;
         background: #111 !important;
+        line-height: 0;
       }
       .avatar-btn svg {
-        width: 20px;
-        height: 20px;
-        fill: none;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 1.8;
+        display: block;
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
       }
       .intro small {
         display: block;
@@ -635,8 +635,8 @@
             </div>
             <button class="text-btn avatar-btn" data-go="profile" aria-label="마이페이지">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="8" r="3.5" />
-                <path d="M5.5 19c.7-3.6 3-5.5 6.5-5.5s5.8 1.9 6.5 5.5" />
+                <circle cx="12" cy="8" r="3.25" />
+                <path d="M6 19.25c.45-3.2 2.65-5.05 6-5.05s5.55 1.85 6 5.05H6Z" />
               </svg>
             </button>
           </header>

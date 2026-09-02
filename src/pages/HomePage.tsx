@@ -25,8 +25,8 @@ export function HomePage() {
           <div className="home-header-actions">
             <Link className="home-profile" to="/profile" aria-label="마이페이지">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="8" r="3.5" />
-                <path d="M5.5 19c.7-3.6 3-5.5 6.5-5.5s5.8 1.9 6.5 5.5" />
+                <circle cx="12" cy="8" r="3.25" />
+                <path d="M6 19.25c.45-3.2 2.65-5.05 6-5.05s5.55 1.85 6 5.05H6Z" />
               </svg>
             </Link>
           </div>
