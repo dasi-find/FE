@@ -1,19 +1,61 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute'
-import { CandidateDetailPage } from '../../pages/CandidateDetailPage'
-import { CandidateListPage } from '../../pages/CandidateListPage'
-import { HomePage } from '../../pages/HomePage'
-import { LandingPage } from '../../pages/LandingPage'
-import { LoginPage } from '../../pages/LoginPage'
-import { NewSearchCardPage } from '../../pages/NewSearchCardPage'
-import { NotificationListPage } from '../../pages/NotificationListPage'
-import { NotFoundPage } from '../../pages/NotFoundPage'
-import { ProfilePage } from '../../pages/ProfilePage'
-import { SignupPage } from '../../pages/SignupPage'
-import { SearchCardListPage } from '../../pages/SearchCardListPage'
-import { SearchCardDetailPage } from '../../pages/SearchCardDetailPage'
-import { SearchCardEditPage } from '../../pages/SearchCardEditPage'
+
+const CandidateDetailPage = lazy(() =>
+  import('../../pages/CandidateDetailPage').then(({ CandidateDetailPage }) => ({
+    default: CandidateDetailPage,
+  })),
+)
+const CandidateListPage = lazy(() =>
+  import('../../pages/CandidateListPage').then(({ CandidateListPage }) => ({
+    default: CandidateListPage,
+  })),
+)
+const HomePage = lazy(() =>
+  import('../../pages/HomePage').then(({ HomePage }) => ({ default: HomePage })),
+)
+const LandingPage = lazy(() =>
+  import('../../pages/LandingPage').then(({ LandingPage }) => ({ default: LandingPage })),
+)
+const LoginPage = lazy(() =>
+  import('../../pages/LoginPage').then(({ LoginPage }) => ({ default: LoginPage })),
+)
+const NewSearchCardPage = lazy(() =>
+  import('../../pages/NewSearchCardPage').then(({ NewSearchCardPage }) => ({
+    default: NewSearchCardPage,
+  })),
+)
+const NotificationListPage = lazy(() =>
+  import('../../pages/NotificationListPage').then(({ NotificationListPage }) => ({
+    default: NotificationListPage,
+  })),
+)
+const NotFoundPage = lazy(() =>
+  import('../../pages/NotFoundPage').then(({ NotFoundPage }) => ({ default: NotFoundPage })),
+)
+const ProfilePage = lazy(() =>
+  import('../../pages/ProfilePage').then(({ ProfilePage }) => ({ default: ProfilePage })),
+)
+const SignupPage = lazy(() =>
+  import('../../pages/SignupPage').then(({ SignupPage }) => ({ default: SignupPage })),
+)
+const SearchCardListPage = lazy(() =>
+  import('../../pages/SearchCardListPage').then(({ SearchCardListPage }) => ({
+    default: SearchCardListPage,
+  })),
+)
+const SearchCardDetailPage = lazy(() =>
+  import('../../pages/SearchCardDetailPage').then(({ SearchCardDetailPage }) => ({
+    default: SearchCardDetailPage,
+  })),
+)
+const SearchCardEditPage = lazy(() =>
+  import('../../pages/SearchCardEditPage').then(({ SearchCardEditPage }) => ({
+    default: SearchCardEditPage,
+  })),
+)
 
 const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
@@ -95,5 +137,18 @@ const router = createBrowserRouter([
 ])
 
 export function AppRouter() {
-  return <RouterProvider router={router} />
+  return (
+    <Suspense fallback={<RouteLoading />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  )
+}
+
+function RouteLoading() {
+  return (
+    <main className="route-loading" aria-label="화면을 불러오는 중" aria-busy="true">
+      <span aria-hidden="true" />
+      <p>잠시만 기다려 주세요.</p>
+    </main>
+  )
 }
