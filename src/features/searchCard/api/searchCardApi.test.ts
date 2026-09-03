@@ -30,7 +30,7 @@ const analysisPayload: SearchCardAnalysisRequest = {
   itemName: '남색 카드지갑',
   color: ['남색'],
   brand: null,
-  featureDescription: null,
+  featureDescription: '앞면에 은색 로고가 있어요.',
   imageIds: [],
   lostDate: '2026-08-17',
   lostStartTime: null,
