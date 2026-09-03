@@ -22,7 +22,7 @@ export type SearchCardAnalysisRequest = {
   itemName: string
   color: string[]
   brand: string | null
-  featureDescription: string | null
+  featureDescription: string
   imageIds: number[]
   lostDate: string
   lostStartTime: string | null

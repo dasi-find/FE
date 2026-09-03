@@ -23,6 +23,10 @@ import {
   basicInfoSchema,
   issuesByField,
   lostInfoSchema,
+  MAX_SEARCH_CARD_IMAGE_BYTES,
+  MAX_SEARCH_CARD_IMAGES,
+  photoFeatureSchema,
+  SUPPORTED_SEARCH_CARD_IMAGE_TYPES,
 } from '../features/searchCard/model/searchCardSchemas'
 import { KakaoPlacePicker } from '../features/searchCard/components/KakaoPlacePicker'
 
@@ -45,7 +49,11 @@ export function NewSearchCardPage() {
     value: SearchCardDraft[Key],
   ) => {
     setDraft((current) => ({ ...current, [key]: value }))
-    setErrors((current) => ({ ...current, [key]: '' }))
+    setErrors((current) => ({
+      ...current,
+      [key]: '',
+      ...((key === 'latitude' || key === 'longitude') && { location: '' }),
+    }))
   }
 
   const goBack = () => {
@@ -63,6 +71,16 @@ export function NewSearchCardPage() {
     }
     setErrors({})
     setStep(2)
+  }
+
+  const nextFromPhoto = () => {
+    const result = photoFeatureSchema.safeParse(draft)
+    if (!result.success) {
+      setErrors(issuesByField(result.error))
+      return
+    }
+    setErrors({})
+    setStep(3)
   }
 
   const analyze = async () => {
@@ -156,7 +174,13 @@ export function NewSearchCardPage() {
           />
         )}
         {step === 2 && (
-          <PhotoFeatureStep draft={draft} updateDraft={updateDraft} onNext={() => setStep(3)} />
+          <PhotoFeatureStep
+            draft={draft}
+            errors={errors}
+            updateDraft={updateDraft}
+            onError={(message) => setErrors((current) => ({ ...current, images: message }))}
+            onNext={nextFromPhoto}
+          />
         )}
         {step === 3 && (
           <LostInfoStep
@@ -231,6 +255,7 @@ function BasicInfoStep({
           label="물품명"
           value={draft.itemName}
           error={errors.itemName}
+          maxLength={100}
           placeholder="예) 남색 카드지갑"
           onChange={(value) => updateDraft('itemName', value)}
         />
@@ -245,6 +270,8 @@ function BasicInfoStep({
         <SearchInput
           label="브랜드 (선택)"
           value={draft.brand}
+          error={errors.brand}
+          maxLength={100}
           placeholder="기억나지 않으면 비워두세요"
           onChange={(value) => updateDraft('brand', value)}
         />
@@ -258,12 +285,35 @@ function BasicInfoStep({
   )
 }
 
-function PhotoFeatureStep({ draft, updateDraft, onNext }: StepProps & { onNext: () => void }) {
+function PhotoFeatureStep({
+  draft,
+  errors,
+  updateDraft,
+  onError,
+  onNext,
+}: StepProps & { errors: FieldErrors; onError: (message: string) => void; onNext: () => void }) {
   const addImages = (files: FileList | null) => {
     if (!files) return
-    const additions = Array.from(files)
-      .filter((file) => file.type.startsWith('image/'))
-      .map((file) => ({ file, imageType: 'ACTUAL' as const }))
+    const selectedFiles = Array.from(files)
+    const hasUnsupportedFile = selectedFiles.some(
+      (file) =>
+        !SUPPORTED_SEARCH_CARD_IMAGE_TYPES.includes(
+          file.type as (typeof SUPPORTED_SEARCH_CARD_IMAGE_TYPES)[number],
+        ),
+    )
+    if (hasUnsupportedFile) {
+      onError('JPG, PNG, WebP 사진만 올릴 수 있어요.')
+      return
+    }
+    if (selectedFiles.some((file) => file.size > MAX_SEARCH_CARD_IMAGE_BYTES)) {
+      onError('사진 한 장은 10MB 이하여야 해요.')
+      return
+    }
+    if (draft.images.length + selectedFiles.length > MAX_SEARCH_CARD_IMAGES) {
+      onError('사진은 최대 5장까지 올릴 수 있어요.')
+      return
+    }
+    const additions = selectedFiles.map((file) => ({ file, imageType: 'ACTUAL' as const }))
     updateDraft('images', [...draft.images, ...additions])
   }
 
@@ -284,14 +334,18 @@ function PhotoFeatureStep({ draft, updateDraft, onNext }: StepProps & { onNext: 
         <label className="search-upload">
           <input
             type="file"
-            accept="image/*"
+            accept={SUPPORTED_SEARCH_CARD_IMAGE_TYPES.join(',')}
             multiple
-            onChange={(event) => addImages(event.target.files)}
+            onChange={(event) => {
+              addImages(event.target.files)
+              event.target.value = ''
+            }}
           />
           <span aria-hidden="true">＋</span>
           <strong>사진 추가</strong>
-          <small>사진이 없어도 괜찮아요</small>
+          <small>JPG, PNG, WebP · 장당 10MB · 최대 5장</small>
         </label>
+        <FieldError message={errors.images} />
         {draft.images.length > 0 && (
           <ul className="search-image-list">
             {draft.images.map((image, index) => (
@@ -336,10 +390,15 @@ function PhotoFeatureStep({ draft, updateDraft, onNext }: StepProps & { onNext: 
         <label className="search-field">
           <span>기억나는 특징</span>
           <textarea
+            aria-label="기억나는 특징"
             value={draft.featureDescription}
+            maxLength={2000}
+            aria-invalid={Boolean(errors.featureDescription)}
             placeholder="예) 앞면에 작은 은색 로고가 있고 오른쪽 아래에 긁힌 자국이 있어요."
             onChange={(event) => updateDraft('featureDescription', event.target.value)}
           />
+          <small>{draft.featureDescription.length.toLocaleString()} / 2,000자</small>
+          <FieldError message={errors.featureDescription} />
         </label>
       </div>
       <WizardFooter>
@@ -383,6 +442,7 @@ function LostInfoStep({
           label="날짜"
           value={draft.lostDate}
           error={errors.lostDate}
+          max={getToday()}
           onChange={(value) => updateDraft('lostDate', value)}
         />
         <fieldset className="search-fieldset">
@@ -440,15 +500,25 @@ function LostInfoStep({
           label="장소명"
           value={draft.placeName}
           error={errors.placeName}
+          maxLength={100}
           placeholder="예) 판교역 스타벅스"
-          onChange={(value) => updateDraft('placeName', value)}
+          onChange={(value) => {
+            updateDraft('placeName', value)
+            updateDraft('latitude', null)
+            updateDraft('longitude', null)
+          }}
         />
         <SearchInput
           label="주소"
           value={draft.address}
           error={errors.address}
+          maxLength={255}
           placeholder="도로명 또는 지번 주소"
-          onChange={(value) => updateDraft('address', value)}
+          onChange={(value) => {
+            updateDraft('address', value)
+            updateDraft('latitude', null)
+            updateDraft('longitude', null)
+          }}
         />
         <KakaoPlacePicker
           query={draft.placeName}
@@ -461,15 +531,20 @@ function LostInfoStep({
             updateDraft('longitude', place.longitude)
           }}
         />
+        <FieldError message={errors.location} />
       </NumberedSection>
       <NumberedSection number="3" title="기억나는 상황 추가">
         <label className="search-field">
           <span>상황 설명 (선택)</span>
           <textarea
+            aria-label="상황 설명 (선택)"
             value={draft.situation}
+            maxLength={1000}
+            aria-invalid={Boolean(errors.situation)}
             placeholder="예) 카페에서 나올 때까지는 있었는데 집에 와서 확인하니 없어졌어요."
             onChange={(event) => updateDraft('situation', event.target.value)}
           />
+          <FieldError message={errors.situation} />
         </label>
         <p className="search-note">
           ⓘ 이동 경로나 마지막으로 물건을 확인한 순간을 적으면 후보 비교에 도움이 돼요.
@@ -645,6 +720,8 @@ function SearchInput({
   placeholder,
   error,
   hint,
+  max,
+  maxLength,
 }: {
   label: string
   value: string
@@ -653,6 +730,8 @@ function SearchInput({
   placeholder?: string
   error?: string
   hint?: string
+  max?: string
+  maxLength?: number
 }) {
   return (
     <label className="search-field">
@@ -661,6 +740,8 @@ function SearchInput({
         type={type}
         value={value}
         placeholder={placeholder}
+        max={max}
+        maxLength={maxLength}
         aria-invalid={Boolean(error)}
         onChange={(event) => onChange(event.target.value)}
       />
@@ -691,7 +772,7 @@ function buildAnalysisPayload(
     itemName: draft.itemName.trim(),
     color: parseColors(draft.colors),
     brand: draft.brand.trim() || null,
-    featureDescription: draft.featureDescription.trim() || null,
+    featureDescription: draft.featureDescription.trim(),
     imageIds,
     lostDate: draft.lostDate,
     ...getLostTimes(draft),
@@ -713,6 +794,12 @@ function formatLostTime(draft: SearchCardDraft) {
 
 function formatFileSize(size: number) {
   return size < 1024 * 1024 ? `${Math.ceil(size / 1024)}KB` : `${(size / 1024 / 1024).toFixed(1)}MB`
+}
+
+function getToday() {
+  const now = new Date()
+  const offset = now.getTimezoneOffset() * 60_000
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10)
 }
 
 function getErrorMessage(error: unknown, fallback: string) {

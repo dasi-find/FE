@@ -20,6 +20,35 @@ vi.mock('../features/searchCard/api/searchCardApi', () => ({
   createSearchCard: vi.fn(),
 }))
 
+vi.mock('../features/searchCard/components/KakaoPlacePicker', () => ({
+  KakaoPlacePicker: ({
+    query,
+    onSelect,
+  }: {
+    query: string
+    onSelect: (place: {
+      placeName: string
+      address: string
+      latitude: number
+      longitude: number
+    }) => void
+  }) => (
+    <button
+      type="button"
+      onClick={() =>
+        onSelect({
+          placeName: query,
+          address: '경기도 성남시 분당구 판교역로 160',
+          latitude: 37.3947,
+          longitude: 127.1112,
+        })
+      }
+    >
+      테스트 장소 선택
+    </button>
+  ),
+}))
+
 const mockedUpload = vi.mocked(uploadSearchCardImage)
 const mockedDeleteImage = vi.mocked(deleteSearchCardImage)
 const mockedGetAnalysis = vi.mocked(getSearchCardAnalysis)
@@ -78,6 +107,7 @@ describe('NewSearchCardPage', () => {
     await user.type(screen.getByLabelText('날짜'), '2026-08-17')
     await user.type(screen.getByLabelText('장소명'), '판교역 스타벅스')
     await user.type(screen.getByLabelText('주소'), '경기도 성남시 분당구 판교역로 166')
+    await user.click(screen.getByRole('button', { name: '테스트 장소 선택' }))
     await user.click(screen.getByRole('button', { name: 'AI로 분석하기' }))
 
     expect(await screen.findByRole('heading', { name: '특징을 정리했어요.' })).toBeInTheDocument()
@@ -140,10 +170,12 @@ describe('NewSearchCardPage', () => {
       screen.getByLabelText(/사진 추가/),
       new File(['wallet'], 'wallet.png', { type: 'image/png' }),
     )
+    await user.type(screen.getByLabelText('기억나는 특징'), '앞면에 은색 로고가 있어요')
     await user.click(screen.getByRole('button', { name: '다음' }))
     await user.type(screen.getByLabelText('날짜'), '2026-08-17')
     await user.type(screen.getByLabelText('장소명'), '판교역')
     await user.type(screen.getByLabelText('주소'), '경기도 성남시 분당구 판교역로 160')
+    await user.click(screen.getByRole('button', { name: '테스트 장소 선택' }))
     await user.click(screen.getByRole('button', { name: 'AI로 분석하기' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('분석 서버에 연결하지 못했어요.')
@@ -170,16 +202,42 @@ describe('NewSearchCardPage', () => {
       new File(['front'], 'wallet-front.png', { type: 'image/png' }),
       new File(['back'], 'wallet-back.png', { type: 'image/png' }),
     ])
+    await user.type(screen.getByLabelText('기억나는 특징'), '모서리에 긁힌 자국이 있어요')
     await user.click(screen.getByRole('button', { name: '다음' }))
     await user.type(screen.getByLabelText('날짜'), '2026-08-17')
     await user.type(screen.getByLabelText('장소명'), '판교역')
     await user.type(screen.getByLabelText('주소'), '경기도 성남시 분당구 판교역로 160')
+    await user.click(screen.getByRole('button', { name: '테스트 장소 선택' }))
     await user.click(screen.getByRole('button', { name: 'AI로 분석하기' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('두 번째 사진을 올리지 못했어요.')
     expect(mockedDeleteImage).toHaveBeenCalledTimes(1)
     expect(mockedDeleteImage).toHaveBeenCalledWith(501)
     expect(mockedAnalysis).not.toHaveBeenCalled()
+  })
+
+  it('특징과 사진 개수를 분석 API 계약에 맞게 검증한다', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(screen.getByRole('button', { name: '지갑' }))
+    await user.type(screen.getByLabelText('물품명'), '카드지갑')
+    await user.type(screen.getByLabelText(/대표 색상/), '검정')
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+
+    expect(screen.getByRole('alert')).toHaveTextContent('기억나는 특징을 입력해 주세요.')
+
+    await user.upload(
+      screen.getByLabelText(/사진 추가/),
+      Array.from(
+        { length: 6 },
+        (_, index) => new File(['image'], `wallet-${index}.png`, { type: 'image/png' }),
+      ),
+    )
+
+    expect(screen.getByText('사진은 최대 5장까지 올릴 수 있어요.')).toBeInTheDocument()
+    expect(screen.queryAllByRole('combobox')).toHaveLength(0)
   })
 })
 
