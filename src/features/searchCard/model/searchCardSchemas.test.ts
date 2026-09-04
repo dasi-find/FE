@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { basicInfoSchema, lostInfoSchema, photoFeatureSchema } from './searchCardSchemas'
+import {
+  basicInfoSchema,
+  editableDetailsSchema,
+  lostInfoSchema,
+  photoFeatureSchema,
+} from './searchCardSchemas'
 
 describe('searchCardSchemas', () => {
   it('분석 요청의 문자열과 색상 개수 제한을 검증한다', () => {
@@ -51,5 +56,20 @@ describe('searchCardSchemas', () => {
         expect.arrayContaining(['lostDate', 'location']),
       )
     }
+  })
+
+  it('수정 가능한 재질과 특징의 길이를 검증한다', () => {
+    expect(
+      editableDetailsSchema.safeParse({
+        material: '가'.repeat(51),
+        featureDescription: '',
+      }).success,
+    ).toBe(false)
+    expect(
+      editableDetailsSchema.safeParse({
+        material: '가죽',
+        featureDescription: '',
+      }).success,
+    ).toBe(true)
   })
 })

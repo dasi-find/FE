@@ -16,7 +16,34 @@ vi.mock('../features/searchCard/api/searchCardApi', () => ({
   updateSearchCard: vi.fn(),
 }))
 vi.mock('../features/searchCard/components/KakaoPlacePicker', () => ({
-  KakaoPlacePicker: () => <div data-testid="place-picker" />,
+  KakaoPlacePicker: ({
+    query,
+    onSelect,
+  }: {
+    query: string
+    onSelect: (place: {
+      placeName: string
+      address: string
+      latitude: number
+      longitude: number
+    }) => void
+  }) => (
+    <div data-testid="place-picker">
+      <button
+        type="button"
+        onClick={() =>
+          onSelect({
+            placeName: query,
+            address: '서울특별시 중구 세종대로 110',
+            latitude: 37.5666,
+            longitude: 126.9784,
+          })
+        }
+      >
+        테스트 장소 선택
+      </button>
+    </div>
+  ),
 }))
 
 const mockedGetSearchCard = vi.mocked(getSearchCard)
@@ -99,6 +126,36 @@ describe('SearchCardEditPage', () => {
 
     expect(screen.getByText('물품명을 입력해 주세요.')).toBeInTheDocument()
     expect(mockedUpdateSearchCard).not.toHaveBeenCalled()
+  })
+
+  it('장소명을 직접 바꾸면 지도 위치를 다시 선택하도록 안내한다', async () => {
+    const user = userEvent.setup()
+    mockedGetSearchCard.mockResolvedValue(searchCard)
+    mockedUpdateSearchCard.mockResolvedValue(searchCard)
+    renderPage('/search-cards/12/edit')
+
+    const placeNameInput = await screen.findByRole('textbox', { name: '장소명' })
+    await user.clear(placeNameInput)
+    await user.type(placeNameInput, '서울시청')
+    await user.click(screen.getByRole('button', { name: '변경사항 저장' }))
+
+    expect(screen.getByText('카카오맵 검색 결과에서 장소를 선택해 주세요.')).toBeInTheDocument()
+    expect(mockedUpdateSearchCard).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('button', { name: '테스트 장소 선택' }))
+    await user.click(screen.getByRole('button', { name: '변경사항 저장' }))
+
+    await waitFor(() => expect(mockedUpdateSearchCard).toHaveBeenCalledTimes(1))
+    expect(mockedUpdateSearchCard).toHaveBeenCalledWith(
+      12,
+      expect.objectContaining({
+        lostLocation: expect.objectContaining({
+          placeName: '서울시청',
+          latitude: 37.5666,
+          longitude: 126.9784,
+        }),
+      }),
+    )
   })
 
   it('잘못된 ID는 조회하지 않고 목록 이동을 안내한다', () => {

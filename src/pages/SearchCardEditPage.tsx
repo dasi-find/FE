@@ -19,6 +19,7 @@ import {
 } from '../features/searchCard/model/searchCardDraft'
 import {
   basicInfoSchema,
+  editableDetailsSchema,
   issuesByField,
   lostInfoSchema,
 } from '../features/searchCard/model/searchCardSchemas'
@@ -119,17 +120,26 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
     value: SearchCardDraft[Key],
   ) => {
     setDraft((current) => ({ ...current, [key]: value }))
-    setErrors((current) => ({ ...current, [key]: '' }))
+    setErrors((current) => ({
+      ...current,
+      [key]: '',
+      ...((key === 'latitude' || key === 'longitude') && { location: '' }),
+    }))
     updateMutation.reset()
   }
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const basicResult = basicInfoSchema.safeParse(draft)
+    const detailsResult = editableDetailsSchema.safeParse({
+      material,
+      featureDescription: draft.featureDescription,
+    })
     const lostResult = lostInfoSchema.safeParse(draft)
-    if (!basicResult.success || !lostResult.success) {
+    if (!basicResult.success || !detailsResult.success || !lostResult.success) {
       setErrors({
         ...(!basicResult.success ? issuesByField(basicResult.error) : {}),
+        ...(!detailsResult.success ? issuesByField(detailsResult.error) : {}),
         ...(!lostResult.success ? issuesByField(lostResult.error) : {}),
       })
       return
@@ -172,6 +182,7 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
           label="물품명"
           value={draft.itemName}
           error={errors.itemName}
+          maxLength={100}
           onChange={(value) => updateDraft('itemName', value)}
         />
         <EditInput
@@ -184,13 +195,18 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
         <EditInput
           label="브랜드 (선택)"
           value={draft.brand}
+          error={errors.brand}
+          maxLength={100}
           onChange={(value) => updateDraft('brand', value)}
         />
         <EditInput
           label="재질 (선택)"
           value={material}
+          error={errors.material}
+          maxLength={50}
           onChange={(value) => {
             setMaterial(value)
+            setErrors((current) => ({ ...current, material: '' }))
             updateMutation.reset()
           }}
         />
@@ -200,9 +216,14 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
         <label className="search-field">
           <span>기억나는 특징 (선택)</span>
           <textarea
+            aria-label="기억나는 특징 (선택)"
             value={draft.featureDescription}
+            maxLength={2000}
+            aria-invalid={Boolean(errors.featureDescription)}
             onChange={(event) => updateDraft('featureDescription', event.target.value)}
           />
+          <small>{draft.featureDescription.length.toLocaleString()} / 2,000자</small>
+          <FieldError message={errors.featureDescription} />
         </label>
       </EditSection>
 
@@ -212,6 +233,7 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
           label="날짜"
           value={draft.lostDate}
           error={errors.lostDate}
+          max={getToday()}
           onChange={(value) => updateDraft('lostDate', value)}
         />
         <fieldset className="search-fieldset">
@@ -270,13 +292,23 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
           label="장소명"
           value={draft.placeName}
           error={errors.placeName}
-          onChange={(value) => updateDraft('placeName', value)}
+          maxLength={100}
+          onChange={(value) => {
+            updateDraft('placeName', value)
+            updateDraft('latitude', null)
+            updateDraft('longitude', null)
+          }}
         />
         <EditInput
           label="주소"
           value={draft.address}
           error={errors.address}
-          onChange={(value) => updateDraft('address', value)}
+          maxLength={255}
+          onChange={(value) => {
+            updateDraft('address', value)
+            updateDraft('latitude', null)
+            updateDraft('longitude', null)
+          }}
         />
         <KakaoPlacePicker
           query={draft.placeName}
@@ -289,12 +321,17 @@ function SearchCardEditForm({ searchCard }: { searchCard: SearchCardDetail }) {
             updateDraft('longitude', place.longitude)
           }}
         />
+        <FieldError message={errors.location} />
         <label className="search-field">
           <span>상황 설명 (선택)</span>
           <textarea
+            aria-label="상황 설명 (선택)"
             value={draft.situation}
+            maxLength={1000}
+            aria-invalid={Boolean(errors.situation)}
             onChange={(event) => updateDraft('situation', event.target.value)}
           />
+          <FieldError message={errors.situation} />
         </label>
       </EditSection>
 
@@ -343,6 +380,8 @@ function EditInput({
   type = 'text',
   error,
   hint,
+  max,
+  maxLength,
 }: {
   label: string
   value: string
@@ -350,6 +389,8 @@ function EditInput({
   type?: string
   error?: string
   hint?: string
+  max?: string
+  maxLength?: number
 }) {
   return (
     <label className="search-field">
@@ -357,6 +398,8 @@ function EditInput({
       <input
         type={type}
         value={value}
+        max={max}
+        maxLength={maxLength}
         aria-invalid={Boolean(error)}
         onChange={(event) => onChange(event.target.value)}
       />
@@ -461,4 +504,10 @@ function toCategory(value: string): SearchCardCategory | '' {
   return categoryOptions.some((option) => option.value === value)
     ? (value as SearchCardCategory)
     : ''
+}
+
+function getToday() {
+  const now = new Date()
+  const offset = now.getTimezoneOffset() * 60_000
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10)
 }

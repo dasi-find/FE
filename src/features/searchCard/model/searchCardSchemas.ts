@@ -68,6 +68,11 @@ export const photoFeatureSchema = z.object({
     .max(MAX_SEARCH_CARD_IMAGES, '사진은 최대 5장까지 올릴 수 있어요.'),
 })
 
+export const editableDetailsSchema = z.object({
+  material: z.string().trim().max(50, '재질은 50자 이하로 입력해 주세요.'),
+  featureDescription: z.string().trim().max(2000, '특징은 2,000자 이하로 입력해 주세요.'),
+})
+
 export const lostInfoSchema = z
   .object({
     lostDate: z.string().min(1, '분실 날짜를 선택해 주세요.'),
